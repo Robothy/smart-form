@@ -31,7 +31,24 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**I. Type Safety**
+- [ ] TypeScript strict mode enabled in tsconfig.json
+- [ ] All dependencies have @types packages or built-in types
+- [ ] No `@ts-ignore`, `any`, or unsafe `as` casts without documented justification
+
+**II. Form Validation First**
+- [ ] Client-side validation strategy defined (zod, yup, or custom)
+- [ ] Server-side validation requirements documented
+- [ ] Error message standards specified
+
+**III. Component Reusability**
+- [ ] MUI component wrapper strategy defined
+- [ ] Component documentation approach planned
+
+**IV. Progressive Enhancement**
+- [ ] Client/server component boundaries identified
+- [ ] SSR/SSG strategy documented
+- [ ] Performance targets defined (FCP < 2s, TTI < 3.5s)
 
 ## Project Structure
 

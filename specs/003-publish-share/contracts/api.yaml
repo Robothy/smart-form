@@ -1,0 +1,226 @@
+openapi: 3.0.3
+info:
+  title: Simple Form - Publish & Share API
+  description: API endpoints for publishing forms and managing share links
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://simple-form.example.com
+    description: Production server
+
+tags:
+  - name: Forms
+    description: Form publishing and copying operations
+
+paths:
+  /api/forms/{id}/publish:
+    post:
+      tags: [Forms]
+      summary: Publish a form
+      description: |
+        Changes a draft form's status to published and generates a unique shareable slug.
+        The form must have at least one field to be published.
+      operationId: publishForm
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The form ID to publish
+      requestBody:
+        description: Empty request body
+        required: false
+        content: {}
+      responses:
+        '200':
+          description: Form successfully published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/PublishedForm'
+        '400':
+          description: Bad request - validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                noFields:
+                  summary: Form has no fields
+                  value:
+                    success: false
+                    error: "Add at least one field before publishing"
+                alreadyPublished:
+                  summary: Form already published
+                  value:
+                    success: false
+                    error: "Form is already published"
+                invalidFields:
+                  summary: Invalid field configuration
+                  value:
+                    success: false
+                    error: "Fix invalid fields before publishing"
+        '404':
+          description: Form not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Form not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Failed to generate unique slug"
+
+  /api/forms/{id}/copy:
+    post:
+      tags: [Forms]
+      summary: Copy a form
+      description: |
+        Creates a completely independent copy of a form as a new draft.
+        The copy has no reference to the original form.
+      operationId: copyForm
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The form ID to copy
+      requestBody:
+        description: Empty request body
+        required: false
+        content: {}
+      responses:
+        '200':
+          description: Form successfully copied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/FormCopy'
+        '404':
+          description: Form not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Form not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Failed to copy form"
+
+components:
+  schemas:
+    PublishedForm:
+      type: object
+      description: A published form with share link information
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Form ID
+        title:
+          type: string
+          description: Form title
+        status:
+          type: string
+          enum: [published]
+          description: Form status (always "published" after successful publish)
+        slug:
+          type: string
+          description: Unique URL-friendly slug for sharing
+          example: customer-feedback-1lk4x9m
+        shareUrl:
+          type: string
+          format: uri
+          description: Complete shareable URL
+          example: https://example.com/forms/share/customer-feedback-1lk4x9m
+        publishedAt:
+          type: string
+          format: date-time
+          description: When the form was published
+        fieldCount:
+          type: integer
+          description: Number of fields in the form
+      required:
+        - id
+        - title
+        - status
+        - slug
+        - shareUrl
+        - publishedAt
+
+    FormCopy:
+      type: object
+      description: A newly created draft form copy
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: New form ID
+        title:
+          type: string
+          description: Copy title (prefixed with "Copy of ")
+          example: Copy of Customer Feedback
+        status:
+          type: string
+          enum: [draft]
+          description: Form status (always "draft" for copies)
+        slug:
+          type: string
+          nullable: true
+          description: Null (will be generated when published)
+        fieldCount:
+          type: integer
+          description: Number of fields copied from original
+      required:
+        - id
+        - title
+        - status
+        - fieldCount
+
+    Error:
+      type: object
+      description: Error response
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Human-readable error message
+      required:
+        - success
+        - error

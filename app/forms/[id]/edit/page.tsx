@@ -1,0 +1,186 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { Container, Typography, Box, Alert, CircularProgress } from '@mui/material'
+import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
+import { Button } from '@/components/ui/Button'
+import { PublishButton } from '@/components/forms/PublishButton'
+import type { PublishedFormData } from '@/components/forms/PublishButton'
+import Link from 'next/link'
+
+/**
+ * Form edit page - edit an existing draft form
+ */
+export default function EditFormPage() {
+  const router = useRouter()
+  const params = useParams()
+  const formId = params.id as string
+
+  const [form, setForm] = useState<FormData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
+
+  useEffect(() => {
+    loadForm()
+  }, [formId])
+
+  // Redirect to view page if form is already published
+  useEffect(() => {
+    if (form && form.status === 'published') {
+      router.replace(`/forms/${formId}/view`)
+    }
+  }, [form, formId, router])
+
+  const loadForm = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/forms/${formId}`)
+      if (!response.ok) {
+        throw new Error('Form not found')
+      }
+
+      const result = await response.json()
+      if (result.success) {
+        // Convert fields from API format to component format
+        const fields = result.data.fields.map((field: any) => ({
+          ...field,
+          options: field.options ? JSON.parse(field.options) : undefined,
+        }))
+
+        setForm({
+          id: result.data.id,
+          title: result.data.title,
+          description: result.data.description,
+          status: result.data.status,
+          fields,
+        })
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load form')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleSave = async (data: Omit<FormData, 'id' | 'status'>) => {
+    setIsSaving(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Failed to update form')
+      }
+
+      setIsSuccess(true)
+      setTimeout(() => {
+        setIsSuccess(false)
+      }, 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update form')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleUpdate = (updated: FormData) => {
+    setForm(updated)
+  }
+
+  const handlePublished = (data: PublishedFormData) => {
+    // Redirect to the view page after successful publish
+    router.push(`/forms/${formId}/view`)
+  }
+
+  const handlePublishError = (error: string) => {
+    setError(error)
+  }
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography sx={{ mt: 2 }}>Loading form...</Typography>
+      </Container>
+    )
+  }
+
+  if (error && !form) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Alert severity="error">{error}</Alert>
+        <Box sx={{ mt: 2 }}>
+          <Link href="/forms">
+            <Button variant="outlined">Back to Forms</Button>
+          </Link>
+        </Box>
+      </Container>
+    )
+  }
+
+  if (!form) {
+    return null
+  }
+
+  // Check if form is published (read-only mode)
+  const isPublished = form.status === 'published'
+
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4">
+          {isPublished ? 'View Form (Read-Only)' : 'Edit Form'}
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          {!isPublished && (
+            <PublishButton
+              formId={formId}
+              fieldCount={form.fields.length}
+              onPublished={handlePublished}
+              onError={handlePublishError}
+            />
+          )}
+          <Link href="/forms">
+            <Button variant="outlined">Back to Forms</Button>
+          </Link>
+        </Box>
+      </Box>
+
+      {isPublished && (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          This form is published and cannot be edited. Published forms are read-only.
+        </Alert>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      {isSuccess && (
+        <Alert severity="success" sx={{ mb: 4 }} onClose={() => setIsSuccess(false)}>
+          Form updated successfully!
+        </Alert>
+      )}
+
+      <FormBuilder
+        form={form}
+        onSave={handleSave}
+        onUpdate={handleUpdate}
+        readonly={isPublished}
+      />
+    </Container>
+  )
+}
