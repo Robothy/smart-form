@@ -8,8 +8,8 @@ export interface FormStatusBadgeProps {
 }
 
 export function FormStatusBadge({ status }: FormStatusBadgeProps) {
-  const color = status === 'published' ? 'success' : 'default'
+  const color = status === 'published' ? 'success' : 'warning'
   const label = status === 'published' ? 'Published' : 'Draft'
 
-  return <Chip label={label} color={color} size="small" />
+  return <Chip label={label} color={color} size="small" variant="filled" />
 }

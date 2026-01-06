@@ -6,6 +6,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-04
 - TypeScript 5.x (via Next.js) + Next.js 15+, React 19+, MUI v6+, @libsql/client, drizzle-orm, zod
 - TypeScript 5.7 (via Next.js 15.1) + Next.js 15.1, React 19, MUI v6, Drizzle ORM 0.36, Zod 3.24, @libsql/client 0.10 (003-publish-share)
 - libSQL (embedded SQLite-compatible database) at `data/simple-form.db` (003-publish-share)
+- TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24 (004-form-management-improvements)
+- libSQL embedded SQLite database at `data/simple-form.db` (004-form-management-improvements)
 
 ## Project Structure
 
@@ -75,15 +77,15 @@ TypeScript 5.x (via Next.js): Follow standard conventions
 - No global state management library needed
 
 ## Recent Changes
+- 004-form-management-improvements: Added TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24
+- 004-form-management-improvements: Added TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24
 - 003-publish-share: Added TypeScript 5.7 (via Next.js 15.1) + Next.js 15.1, React 19, MUI v6, Drizzle ORM 0.36, Zod 3.24, @libsql/client 0.10
-- 002-remove-ai: Removed all AI features from the application
   - Removed AI assistant components (AIAssistant, FillAssistant)
   - Removed AI API endpoints (/api/ai/*)
   - Removed AI library code (lib/ai/*)
   - Removed CopilotProvider wrapper
   - Removed AI configuration (OPENAI_API_KEY)
 
-- 001-ai-form-builder: Implemented complete form builder
   - Phase 1-2: Project setup, database schema, API utilities
   - Phase 3: User Story 1 - Form creation and editing
   - Phase 4: User Story 4 - Form filling and submission

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb, schema } from '@/lib/db/client'
-import { eq } from 'drizzle-orm'
+import { eq, count } from 'drizzle-orm'
 import { CreateFormSchema, UpdateFormSchema } from '@/lib/validation/schemas'
 import { successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
 import type { NewForm, NewFormField } from '@/lib/db/schema'
@@ -25,24 +25,31 @@ export async function GET(request: NextRequest) {
 
     const forms = await query
 
+    // Get total counts for all statuses (for the filter tabs)
+    const [allForms, draftForms, publishedForms] = await Promise.all([
+      db.select().from(schema.forms),
+      db.select().from(schema.forms).where(eq(schema.forms.status, 'draft')),
+      db.select().from(schema.forms).where(eq(schema.forms.status, 'published')),
+    ])
+
     // Add fields count and submissions count for display
     const formsWithCounts = await Promise.all(
       forms.map(async (form) => {
-        const [fieldsCount, submissionsCount] = await Promise.all([
+        const [fieldsCountResult, submissionsCountResult] = await Promise.all([
           db
-            .select({ count: schema.formFields.id })
+            .select({ count: count() })
             .from(schema.formFields)
             .where(eq(schema.formFields.formId, form.id)),
           db
-            .select({ count: schema.formSubmissions.id })
+            .select({ count: count() })
             .from(schema.formSubmissions)
             .where(eq(schema.formSubmissions.formId, form.id)),
         ])
 
         const result: any = {
           ...form,
-          fieldsCount: fieldsCount.length,
-          submissionsCount: submissionsCount.length,
+          fieldsCount: fieldsCountResult[0]?.count || 0,
+          submissionsCount: submissionsCountResult[0]?.count || 0,
         }
 
         // Add shareable link for published forms
@@ -54,7 +61,16 @@ export async function GET(request: NextRequest) {
       })
     )
 
-    return NextResponse.json(successResponse(formsWithCounts))
+    return NextResponse.json(
+      successResponse({
+        forms: formsWithCounts,
+        counts: {
+          all: allForms.length,
+          draft: draftForms.length,
+          published: publishedForms.length,
+        },
+      })
+    )
   } catch (error) {
     console.error('Error listing forms:', error)
     return NextResponse.json(

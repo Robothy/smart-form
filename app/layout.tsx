@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { NavBar } from '@/components/forms/NavBar'
 
 export const metadata: Metadata = {
   title: 'Simple Form - Form Builder',
@@ -13,7 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <NavBar />
+        <main style={{ marginTop: '64px' }}>
+          {children}
+        </main>
+      </body>
     </html>
   )
 }

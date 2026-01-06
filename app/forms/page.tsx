@@ -13,7 +13,9 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Chip,
+  Stack,
 } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 import { FormCard } from '@/components/forms/FormCard'
 import Link from 'next/link'
 
@@ -30,27 +32,39 @@ type Form = {
 
 type StatusFilter = 'all' | 'draft' | 'published'
 
+type FormsCount = {
+  all: number
+  draft: number
+  published: number
+}
+
 /**
  * Forms list page - displays all forms with filtering
  */
 export default function FormsPage() {
   const router = useRouter()
   const [forms, setForms] = useState<Form[]>([])
+  const [counts, setCounts] = useState<FormsCount>({ all: 0, draft: 0, published: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<StatusFilter>('all')
 
   useEffect(() => {
-    loadForms()
+    const abortController = new AbortController()
+    loadForms(abortController.signal)
+
+    return () => {
+      abortController.abort()
+    }
   }, [filter])
 
-  const loadForms = async () => {
+  const loadForms = async (signal: AbortSignal) => {
     setIsLoading(true)
     setError(null)
 
     try {
       const url = filter === 'all' ? '/api/forms' : `/api/forms?status=${filter}`
-      const response = await fetch(url)
+      const response = await fetch(url, { signal })
 
       if (!response.ok) {
         throw new Error('Failed to load forms')
@@ -58,10 +72,13 @@ export default function FormsPage() {
 
       const result = await response.json()
       if (result.success) {
-        setForms(result.data)
+        setForms(result.data.forms)
+        setCounts(result.data.counts)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load forms')
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError(err.message)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -76,14 +93,57 @@ export default function FormsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">My Forms</Typography>
-        <Link href="/forms/new">
-          <Button variant="contained">Create New Form</Button>
-        </Link>
+    <>
+      {/* Toolbar */}
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          top: { xs: 56, sm: 64 },
+          left: 0,
+          right: 0,
+          zIndex: theme.zIndex.appBar - 1,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          backdropFilter: 'blur(6px)',
+          bgcolor: theme.palette.background.paper,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+        })}
+      >
+        <Box
+          sx={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            py: 1.25,
+            px: { xs: 2, sm: 3 },
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="subtitle1" fontWeight={600} noWrap>
+              My Forms
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {counts.all} form{counts.all !== 1 ? 's' : ''} total
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Link href="/forms/new" passHref legacyBehavior>
+              <Button
+                component="a"
+                variant="contained"
+                startIcon={<AddIcon />}
+                sx={{ borderRadius: 999, px: 3 }}
+              >
+                Create New Form
+              </Button>
+            </Link>
+          </Stack>
+        </Box>
       </Box>
 
+      <Container maxWidth="lg" sx={{ py: 4, mt: 18 }}>
       <Box sx={{ mb: 4 }}>
         <ToggleButtonGroup
           value={filter}
@@ -92,13 +152,13 @@ export default function FormsPage() {
           aria-label="form status filter"
         >
           <ToggleButton value="all" aria-label="all forms">
-            All <Chip label={forms.length} size="small" sx={{ ml: 1 }} />
+            All <Chip label={counts.all} size="small" sx={{ ml: 1 }} />
           </ToggleButton>
           <ToggleButton value="draft" aria-label="draft forms">
-            Drafts <Chip label={forms.filter(f => f.status === 'draft').length} size="small" sx={{ ml: 1 }} />
+            Drafts <Chip label={counts.draft} size="small" sx={{ ml: 1 }} />
           </ToggleButton>
           <ToggleButton value="published" aria-label="published forms">
-            Published <Chip label={forms.filter(f => f.status === 'published').length} size="small" sx={{ ml: 1 }} />
+            Published <Chip label={counts.published} size="small" sx={{ ml: 1 }} />
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
@@ -133,11 +193,13 @@ export default function FormsPage() {
                 shareableLink={form.shareableLink}
                 slug={form.slug}
                 onClick={() => handleFormClick(form)}
+                onDeleted={() => loadForms(new AbortController().signal)}
               />
             </Grid>
           ))}
         </Grid>
       )}
     </Container>
+    </>
   )
 }

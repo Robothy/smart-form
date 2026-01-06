@@ -176,7 +176,7 @@ export async function PUT(
 }
 
 /**
- * DELETE /api/forms/:id - Delete a form (draft only)
+ * DELETE /api/forms/:id - Delete a form (draft and published)
  */
 export async function DELETE(
   request: NextRequest,
@@ -201,18 +201,7 @@ export async function DELETE(
       )
     }
 
-    // Prevent deleting published forms
-    if (existingForm.status === 'published') {
-      return NextResponse.json(
-        errorResponse(
-          ErrorCode.FORBIDDEN,
-          'Cannot delete published forms'
-        ),
-        { status: 403 }
-      )
-    }
-
-    // Delete form (cascade will delete fields)
+    // Delete form (cascade will delete fields, submissions)
     await db.delete(schema.forms).where(eq(schema.forms.id, id))
 
     return NextResponse.json(successResponse({ message: 'Form deleted successfully' }))
