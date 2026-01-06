@@ -8,17 +8,9 @@ import {
   Box,
   Button,
   Alert,
-  CircularProgress,
-  Paper,
 } from '@mui/material'
-import { SubmissionList, type PaginationData } from '@/components/ui/SubmissionList'
-import type { FormFieldData } from '@/components/ui/FormBuilder'
-
-type Submission = {
-  id: string
-  data: Record<string, string | string[]>
-  submittedAt: string
-}
+import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/SubmissionGrid'
+import Link from 'next/link'
 
 /**
  * Form submissions page - view all submissions for a published form
@@ -29,82 +21,111 @@ export default function SubmissionsPage() {
   const formId = params.id as string
 
   const [submissions, setSubmissions] = useState<Submission[]>([])
-  const [fields, setFields] = useState<FormFieldData[]>([])
-  const [pagination, setPagination] = useState<PaginationData | null>(null)
+  const [fields, setFields] = useState<FieldDefinition[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [totalCount, setTotalCount] = useState(0)
 
+  // Load form fields once on mount
   useEffect(() => {
-    loadSubmissions()
-  }, [formId, currentPage])
+    const abortController = new AbortController()
 
-  const loadSubmissions = async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // Load form fields first
-      const formResponse = await fetch(`/api/forms/${formId}`)
-      if (!formResponse.ok) {
-        throw new Error('Form not found')
+    const loadFormFields = async () => {
+      try {
+        const formResponse = await fetch(`/api/forms/${formId}`, { signal: abortController.signal })
+        if (!formResponse.ok) {
+          throw new Error('Form not found')
+        }
+        const formResult = await formResponse.json()
+        if (formResult.success) {
+          const fieldData: FieldDefinition[] = (formResult.data.fields || []).map((f: any) => ({
+            id: f.id,
+            label: f.label,
+            type: f.type,
+            required: f.required === 1 || f.required === true,
+          }))
+          setFields(fieldData)
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setError(err instanceof Error ? err.message : 'Failed to load form')
+        }
       }
-      const formResult = await formResponse.json()
-      if (formResult.success) {
-        setFields(formResult.data.fields || [])
-      }
-
-      // Load submissions
-      const submissionsResponse = await fetch(`/api/forms/${formId}/submissions?page=${currentPage}&limit=20`)
-      if (!submissionsResponse.ok) {
-        throw new Error('Failed to load submissions')
-      }
-
-      const submissionsResult = await submissionsResponse.json()
-      if (submissionsResult.success) {
-        setSubmissions(submissionsResult.data.submissions)
-        setPagination(submissionsResult.data.pagination)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load submissions')
-    } finally {
-      setIsLoading(false)
     }
+
+    loadFormFields()
+
+    return () => {
+      abortController.abort()
+    }
+  }, [formId])
+
+  // Load submissions when page or rowsPerPage changes
+  useEffect(() => {
+    const abortController = new AbortController()
+
+    const loadSubmissions = async () => {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const submissionsResponse = await fetch(
+          `/api/forms/${formId}/submissions?page=${page + 1}&limit=${rowsPerPage}`,
+          { signal: abortController.signal }
+        )
+        if (!submissionsResponse.ok) {
+          throw new Error('Failed to load submissions')
+        }
+
+        const submissionsResult = await submissionsResponse.json()
+        if (submissionsResult.success) {
+          const subData: Submission[] = (submissionsResult.data.submissions || []).map((s: any) => ({
+            id: s.id,
+            data: s.data,
+            submittedAt: s.submittedAt,
+          }))
+          setSubmissions(subData)
+          setTotalCount(submissionsResult.data.pagination?.total || 0)
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          setError(err instanceof Error ? err.message : 'Failed to load submissions')
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadSubmissions()
+
+    return () => {
+      abortController.abort()
+    }
+  }, [formId, page, rowsPerPage])
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
   }
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
-
-  if (isLoading) {
-    return (
-      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography sx={{ mt: 2 }}>Loading submissions...</Typography>
-      </Container>
-    )
-  }
-
-  if (error && submissions.length === 0) {
-    return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert severity="error">{error}</Alert>
-        <Box sx={{ mt: 2 }}>
-          <Button variant="outlined" onClick={() => router.push(`/forms/${formId}/view`)}>
-            Back to Form
-          </Button>
-        </Box>
-      </Container>
-    )
+  const handleRowsPerPageChange = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage)
+    setPage(0)
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4">Submissions</Typography>
-        <Button variant="outlined" onClick={() => router.push(`/forms/${formId}/view`)}>
-          Back to Form
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Link href={`/forms/${formId}/view`}>
+            <Button variant="outlined">Back to Form</Button>
+          </Link>
+          <Link href="/forms">
+            <Button variant="outlined">All Forms</Button>
+          </Link>
+        </Box>
       </Box>
 
       {error && (
@@ -113,16 +134,16 @@ export default function SubmissionsPage() {
         </Alert>
       )}
 
-      <Paper sx={{ p: 4 }}>
-        {pagination && (
-          <SubmissionList
-            submissions={submissions}
-            pagination={pagination}
-            fields={fields}
-            onPageChange={handlePageChange}
-          />
-        )}
-      </Paper>
+      <SubmissionGrid
+        fields={fields}
+        submissions={submissions}
+        isLoading={isLoading}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        totalCount={totalCount}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
     </Container>
   )
 }

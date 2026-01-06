@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Container, Typography, Box, Alert, CircularProgress } from '@mui/material'
+import { Container, Typography, Box, Alert, CircularProgress, Button, Stack } from '@mui/material'
 import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
-import { Button } from '@/components/ui/Button'
+import SaveIcon from '@mui/icons-material/Save'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
 
 /**
@@ -69,13 +70,66 @@ export default function NewFormPage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Create New Form</Typography>
-        <Link href="/forms">
-          <Button variant="outlined">Back to Forms</Button>
-        </Link>
+    <>
+      {/* Toolbar */}
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          top: { xs: 56, sm: 64 },
+          left: 0,
+          right: 0,
+          zIndex: theme.zIndex.appBar - 1,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          backdropFilter: 'blur(6px)',
+          bgcolor: theme.palette.background.paper,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+        })}
+      >
+        <Box
+          sx={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            py: 1.25,
+            px: { xs: 2, sm: 3 },
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="subtitle1" fontWeight={600} noWrap>
+              Create New Form
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              Draft • {form.fields.length} field{form.fields.length !== 1 ? 's' : ''}
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Link href="/forms" passHref legacyBehavior>
+              <Button
+                component="a"
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                sx={{ borderRadius: 999, px: 2.5 }}
+              >
+                Cancel
+              </Button>
+            </Link>
+            <Button
+              variant="contained"
+              startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+              onClick={() => handleSave({ title: form.title, description: form.description, fields: form.fields })}
+              disabled={isLoading || !form.title.trim()}
+              sx={{ borderRadius: 999, px: 3 }}
+            >
+              {isLoading ? 'Creating…' : 'Create Form'}
+            </Button>
+          </Stack>
+        </Box>
       </Box>
+
+      <Container maxWidth="md" sx={{ py: 4, mt: 18 }}>
 
       {error && (
         <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
@@ -87,7 +141,10 @@ export default function NewFormPage() {
         form={form}
         onSave={handleSave}
         onUpdate={handleUpdate}
+        showSaveButton={false}
+        showHeading={false}
       />
     </Container>
+    </>
   )
 }

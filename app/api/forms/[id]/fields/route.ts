@@ -5,6 +5,55 @@ import { CreateFormFieldSchema, UpdateFormFieldSchema, successResponse, errorRes
 import type { NewFormField } from '@/lib/db/schema'
 
 /**
+ * GET /api/forms/:id/fields - Get all fields for a form (for grid view)
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: formId } = await params
+
+    const db = getDb()
+
+    // Check if form exists
+    const [existingForm] = await db
+      .select()
+      .from(schema.forms)
+      .where(eq(schema.forms.id, formId))
+      .limit(1)
+
+    if (!existingForm) {
+      return NextResponse.json(
+        errorResponse(ErrorCode.NOT_FOUND, 'Form not found'),
+        { status: 404 }
+      )
+    }
+
+    // Get fields ordered by order
+    const fields = await db
+      .select({
+        id: schema.formFields.id,
+        label: schema.formFields.label,
+        type: schema.formFields.type,
+        required: schema.formFields.required,
+        order: schema.formFields.order,
+      })
+      .from(schema.formFields)
+      .where(eq(schema.formFields.formId, formId))
+      .orderBy(schema.formFields.order)
+
+    return NextResponse.json(successResponse({ fields }))
+  } catch (error) {
+    console.error('Error getting fields:', error)
+    return NextResponse.json(
+      errorResponse(ErrorCode.INTERNAL_ERROR, 'Failed to get fields'),
+      { status: 500 }
+    )
+  }
+}
+
+/**
  * POST /api/forms/:id/fields - Add a field to a form
  */
 export async function POST(

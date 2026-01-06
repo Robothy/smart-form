@@ -100,4 +100,4 @@ desktop.ini
 # pnpm-lock.yaml
 
 # Claude Code settings (keep local configs, ignore shared if needed)
-.claude/settings.local.json
+.claude/settings.local.*

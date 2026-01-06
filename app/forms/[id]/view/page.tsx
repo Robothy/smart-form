@@ -13,11 +13,20 @@ import {
   Stack,
   Chip,
   TextField,
+  IconButton,
 } from '@mui/material'
-import { ContentCopy as CopyIcon } from '@mui/icons-material'
+import {
+  ContentCopy as CopyIcon,
+  Delete as DeleteIcon,
+  FileCopy as FileCopyIcon,
+  ArrowBack as ArrowBackIcon,
+  Visibility as VisibilityIcon,
+  Share as ShareIcon,
+} from '@mui/icons-material'
 import { FormStatusBadge } from '@/components/forms/FormStatusBadge'
 import { ShareLinkDisplay } from '@/components/forms/ShareLinkDisplay'
 import { CopyFormButton } from '@/components/forms/CopyFormButton'
+import { DeleteConfirmationDialog } from '@/components/forms/DeleteConfirmationDialog'
 import type { FormData, FormFieldData } from '@/components/ui/FormBuilder'
 
 /**
@@ -35,17 +44,25 @@ export default function ViewFormPage() {
   const [publishSuccess, setPublishSuccess] = useState(false)
   const [shareableLink, setShareableLink] = useState<string>('')
   const [copied, setCopied] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadForm()
+    const abortController = new AbortController()
+    loadForm(abortController.signal)
+
+    return () => {
+      abortController.abort()
+    }
   }, [formId])
 
-  const loadForm = async () => {
+  const loadForm = async (signal: AbortSignal) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await fetch(`/api/forms/${formId}`)
+      const response = await fetch(`/api/forms/${formId}`, { signal })
       if (!response.ok) {
         throw new Error('Form not found')
       }
@@ -61,7 +78,9 @@ export default function ViewFormPage() {
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load form')
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError(err.message)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -109,6 +128,39 @@ export default function ViewFormPage() {
     setError(error)
   }
 
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true)
+    setDeleteError(null)
+  }
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true)
+    setDeleteError(null)
+
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error?.message || 'Failed to delete form')
+      }
+
+      setDeleteDialogOpen(false)
+      router.push('/forms')
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete form')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const handleDeleteClose = () => {
+    setDeleteDialogOpen(false)
+    setDeleteError(null)
+  }
+
   if (isLoading) {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
@@ -138,7 +190,90 @@ export default function ViewFormPage() {
   const isPublished = form.status === 'published'
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <>
+      {/* Toolbar */}
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          top: { xs: 56, sm: 64 },
+          left: 0,
+          right: 0,
+          zIndex: theme.zIndex.appBar - 1,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          backdropFilter: 'blur(6px)',
+          bgcolor: theme.palette.background.paper,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+        })}
+      >
+        <Box
+          sx={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            py: 1.25,
+            px: { xs: 2, sm: 3 },
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="subtitle1" fontWeight={600} noWrap>
+              {form.title}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {isPublished ? 'Published' : 'Draft'} • {form.fields?.length || 0} field{(form.fields?.length || 0) !== 1 ? 's' : ''}
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Button
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => router.push('/forms')}
+              sx={{ borderRadius: 999, px: 2.5 }}
+            >
+              Back
+            </Button>
+            {isPublished && shareableLink && (
+              <Button
+                variant="outlined"
+                startIcon={copied ? <CopyIcon /> : <ShareIcon />}
+                onClick={handleCopyLink}
+                sx={{ borderRadius: 999, px: 2.5 }}
+              >
+                {copied ? 'Copied!' : 'Copy Link'}
+              </Button>
+            )}
+            {isPublished && (
+              <CopyFormButton
+                formId={formId}
+                onError={handleCopyError}
+              />
+            )}
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleDeleteClick}
+              sx={{ borderRadius: 999, px: 2.5 }}
+            >
+              Delete
+            </Button>
+            {isPublished && (
+              <Button
+                variant="contained"
+                startIcon={<VisibilityIcon />}
+                onClick={() => router.push(`/forms/${formId}/submissions`)}
+                sx={{ borderRadius: 999, px: 3 }}
+              >
+                View Submissions
+              </Button>
+            )}
+          </Stack>
+        </Box>
+      </Box>
+
+      <Container maxWidth="md" sx={{ py: 4, mt: 18 }}>
       <Stack spacing={3}>
         {/* Share Link Display at the top - only for published forms */}
         <ShareLinkDisplay
@@ -147,30 +282,13 @@ export default function ViewFormPage() {
           formStatus={form.status}
         />
 
-        {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              {form.title}
+        {/* Header - simplified */}
+        <Box>
+          {form.description && (
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {form.description}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <FormStatusBadge status={form.status} />
-              {isPublished && (
-                <Chip label={`${form.fields?.length || 0} field${(form.fields?.length || 0) !== 1 ? 's' : ''}`} size="small" />
-              )}
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            {isPublished && (
-              <CopyFormButton
-                formId={formId}
-                onError={handleCopyError}
-              />
-            )}
-            <Button variant="outlined" onClick={() => router.push('/forms')}>
-              Back to Forms
-            </Button>
-          </Box>
+          )}
         </Box>
 
         {publishSuccess && (
@@ -187,16 +305,6 @@ export default function ViewFormPage() {
 
         {/* Form details */}
         <Paper sx={{ p: 4 }}>
-          {form.description && (
-            <Typography variant="body1" color="text.secondary" paragraph>
-              {form.description}
-            </Typography>
-          )}
-
-          <Typography variant="h6" gutterBottom>
-            Form Fields ({form.fields?.length || 0})
-          </Typography>
-
           {form.fields && form.fields.length > 0 ? (
             <Stack spacing={2}>
               {form.fields.map((field, index) => (
@@ -226,35 +334,8 @@ export default function ViewFormPage() {
         </Paper>
 
         {/* Publish/Share section */}
-        <Paper sx={{ p: 4 }}>
-          {isPublished ? (
-            <Stack spacing={2}>
-              <Typography variant="h6">Shareable Link</Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  fullWidth
-                  value={shareableLink}
-                  InputProps={{ readOnly: true }}
-                  size="small"
-                />
-                <Button
-                  variant="contained"
-                  onClick={handleCopyLink}
-                  startIcon={<CopyIcon />}
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </Button>
-              </Box>
-              <Button
-                variant="outlined"
-                href={shareableLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Form Link
-              </Button>
-            </Stack>
-          ) : (
+        {!isPublished && (
+          <Paper sx={{ p: 4 }}>
             <Stack spacing={2}>
               <Typography variant="h6">Publish Form</Typography>
               <Typography variant="body2" color="text.secondary">
@@ -274,19 +355,7 @@ export default function ViewFormPage() {
                 {isPublishing ? 'Publishing...' : 'Publish Form'}
               </Button>
             </Stack>
-          )}
-        </Paper>
-
-        {/* View submissions button for published forms */}
-        {isPublished && (
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={() => router.push(`/forms/${formId}/submissions`)}
-          >
-            View Submissions
-          </Button>
+          </Paper>
         )}
 
         {/* Edit button for draft forms */}
@@ -300,7 +369,24 @@ export default function ViewFormPage() {
             Edit Form
           </Button>
         )}
+
+        {/* Delete confirmation dialog */}
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          formTitle={form.title}
+          submissionsCount={form.fields?.length || 0}
+          onClose={handleDeleteClose}
+          onConfirm={handleDeleteConfirm}
+          isDeleting={isDeleting}
+        />
+
+        {deleteError && (
+          <Alert severity="error" onClose={() => setDeleteError(null)}>
+            {deleteError}
+          </Alert>
+        )}
       </Stack>
     </Container>
+    </>
   )
 }
