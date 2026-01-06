@@ -102,10 +102,11 @@ export default function FormsPage() {
           left: 0,
           right: 0,
           zIndex: theme.zIndex.appBar - 1,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(6px)',
-          bgcolor: theme.palette.background.paper,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          background: 'rgba(10, 10, 15, 0.8)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
         })}
       >
         <Box
@@ -115,26 +116,53 @@ export default function FormsPage() {
             display: 'flex',
             alignItems: 'center',
             gap: 2,
-            py: 1.25,
+            py: 1.5,
             px: { xs: 2, sm: 3 },
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} noWrap>
+            <Typography
+              variant="subtitle1"
+              fontWeight={700}
+              fontSize="1.125rem"
+              letterSpacing="-0.02em"
+              noWrap
+              sx={{ color: '#f1f5f9' }}
+            >
               My Forms
             </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#94a3b8',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+              }}
+              noWrap
+            >
               {counts.all} form{counts.all !== 1 ? 's' : ''} total
             </Typography>
           </Box>
 
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Link href="/forms/new" passHref legacyBehavior>
+            <Link href="/forms/new" style={{ textDecoration: 'none' }}>
               <Button
-                component="a"
                 variant="contained"
                 startIcon={<AddIcon />}
-                sx={{ borderRadius: 999, px: 3 }}
+                sx={{
+                  borderRadius: 999,
+                  px: 3,
+                  py: 1,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+                  },
+                }}
               >
                 Create New Form
               </Button>
@@ -150,31 +178,70 @@ export default function FormsPage() {
           exclusive
           onChange={(e, value) => value && setFilter(value)}
           aria-label="form status filter"
+          sx={{
+            '& .MuiToggleButton-root': {
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: '#94a3b8',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              py: 1,
+              px: 2,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+              },
+              '&.Mui-selected': {
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
+                border: '1px solid rgba(99, 102, 241, 0.4)',
+                color: '#f1f5f9',
+              },
+            },
+          }}
         >
           <ToggleButton value="all" aria-label="all forms">
-            All <Chip label={counts.all} size="small" sx={{ ml: 1 }} />
+            All <Chip label={counts.all} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
           </ToggleButton>
           <ToggleButton value="draft" aria-label="draft forms">
-            Drafts <Chip label={counts.draft} size="small" sx={{ ml: 1 }} />
+            Drafts <Chip label={counts.draft} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
           </ToggleButton>
           <ToggleButton value="published" aria-label="published forms">
-            Published <Chip label={counts.published} size="small" sx={{ ml: 1 }} />
+            Published <Chip label={counts.published} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+        <Alert
+          severity="error"
+          sx={{
+            mb: 4,
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 2,
+            color: '#ef4444',
+          }}
+          onClose={() => setError(null)}
+        >
           {error}
         </Alert>
       )}
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#6366f1' }} />
         </Box>
       ) : forms.length === 0 ? (
-        <Alert severity="info">
+        <Alert
+          severity="info"
+          sx={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: 2,
+            color: '#3b82f6',
+          }}
+        >
           {filter === 'all'
             ? 'No forms yet. Create your first form to get started!'
             : `No ${filter} forms found.`}

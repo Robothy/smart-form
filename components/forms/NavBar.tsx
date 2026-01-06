@@ -5,7 +5,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   Box,
   Container,
 } from '@mui/material'
@@ -21,12 +20,12 @@ const navItems: NavItem[] = [
 ]
 
 /**
- * Enhanced navigation bar with active state indicators
- * Shows current location and provides quick access to main sections
+ * Premium navigation bar with glassmorphism effect
+ * Features animated gradient logo and subtle depth
  */
 export function NavBar() {
   const pathname = usePathname()
-  // Check if a nav item is active
+
   const isActive = (href: string): boolean => {
     if (href === '/forms') {
       return pathname === '/forms' || pathname.startsWith('/forms/')
@@ -37,34 +36,56 @@ export function NavBar() {
   return (
     <AppBar
       position="fixed"
-      color="default"
       elevation={0}
       sx={{
-        borderBottom: 1,
-        borderColor: 'divider',
-        bgcolor: 'background.paper',
+        background: 'rgba(10, 10, 15, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         zIndex: (theme) => theme.zIndex.appBar,
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
       }}
     >
       <Container maxWidth="lg">
-        <Toolbar disableGutters>
-          {/* Logo / App Name */}
-          <Link href="/forms" passHref legacyBehavior>
+        <Toolbar disableGutters sx={{ py: 1 }}>
+          {/* Logo / App Name with Gradient */}
+          <Link href="/forms" style={{ textDecoration: 'none' }}>
             <Typography
-              component="a"
-              variant="h6"
+              component="span"
+              variant="h5"
               sx={{
-                fontWeight: 'bold',
-                color: 'primary.main',
-                mr: 4,
+                fontWeight: 800,
+                fontSize: '1.5rem',
+                letterSpacing: '-0.03em',
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 textDecoration: 'none',
                 cursor: 'pointer',
+                position: 'relative',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 '&:hover': {
-                  opacity: 0.8,
+                  transform: 'scale(1.02)',
+                  filter: 'brightness(1.1)',
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: -4,
+                  left: 0,
+                  width: '100%',
+                  height: 2,
+                  background: 'linear-gradient(90deg, transparent, #6366f1, transparent)',
+                  transform: 'scaleX(0)',
+                  transition: 'transform 0.3s ease',
+                },
+                '&:hover::after': {
+                  transform: 'scaleX(1)',
                 },
               }}
             >
-              Simple Form
+              FORMFORGE
             </Typography>
           </Link>
 

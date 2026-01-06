@@ -72,17 +72,24 @@ export function SubmissionGrid({
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: '#6366f1' }} />
       </Box>
     )
   }
 
   if (submissions.length === 0) {
     return (
-      <Paper sx={{ p: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">
-          No submissions yet.
-        </Typography>
+      <Paper
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          background: 'rgba(26, 26, 36, 0.6)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: 2,
+        }}
+      >
+        <Typography sx={{ color: '#94a3b8' }}>No submissions yet.</Typography>
       </Paper>
     )
   }
@@ -93,23 +100,51 @@ export function SubmissionGrid({
     : submissions
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper
+      sx={{
+        width: '100%',
+        overflow: 'hidden',
+        background: 'rgba(26, 26, 36, 0.6)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: 2,
+      }}
+    >
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader size="small">
-          <TableHead>
+          <TableHead
+            sx={{
+              '& .MuiTableCell-root': {
+                background: 'rgba(19, 19, 26, 0.95)',
+                color: '#f1f5f9',
+                fontWeight: 700,
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+              },
+            }}
+          >
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Submitted</TableCell>
+              <TableCell>Submitted</TableCell>
               {fields.map((field) => (
-                <TableCell key={field.id} sx={{ fontWeight: 'bold', minWidth: 150 }}>
+                <TableCell key={field.id} sx={{ minWidth: 150 }}>
                   {field.label}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody
+            sx={{
+              '& .MuiTableCell-root': {
+                color: '#f1f5f9',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+              },
+              '& .MuiTableRow-hover:hover': {
+                background: 'rgba(99, 102, 241, 0.05)',
+              },
+            }}
+          >
             {displaySubmissions.map((submission) => (
               <TableRow key={submission.id} hover>
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                <TableCell sx={{ whiteSpace: 'nowrap', color: '#94a3b8' }}>
                   {submission.submittedAt instanceof Date
                     ? submission.submittedAt.toLocaleDateString()
                     : new Date(submission.submittedAt).toLocaleDateString()}
@@ -123,6 +158,13 @@ export function SubmissionGrid({
                         title={value ? String(value) : '-'}
                         arrow
                         enterDelay={500}
+                        sx={{
+                          '& .MuiTooltip-tooltip': {
+                            background: 'rgba(19, 19, 26, 0.95)',
+                            color: '#f1f5f9',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                          },
+                        }}
                       >
                         <Box
                           sx={{
@@ -133,6 +175,7 @@ export function SubmissionGrid({
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
+                            color: '#f1f5f9',
                           }}
                         >
                           <span>{displayValue}</span>
@@ -144,7 +187,16 @@ export function SubmissionGrid({
                                   e.stopPropagation()
                                   handleCopy(value)
                                 }}
-                                sx={{ flexShrink: 0, width: 20, height: 20 }}
+                                sx={{
+                                  flexShrink: 0,
+                                  width: 20,
+                                  height: 20,
+                                  color: '#64748b',
+                                  '&:hover': {
+                                    color: '#6366f1',
+                                    background: 'rgba(99, 102, 241, 0.1)',
+                                  },
+                                }}
                               >
                                 <ContentCopyIcon fontSize="small" />
                               </IconButton>
@@ -174,6 +226,18 @@ export function SubmissionGrid({
             onPageChange?.(0)
           }}
           rowsPerPageOptions={[10, 25, 50, 100]}
+          sx={{
+            color: '#94a3b8',
+            '& .MuiTablePagination-select': {
+              color: '#f1f5f9',
+            },
+            '& .MuiTablePagination-selectIcon': {
+              color: '#94a3b8',
+            },
+            '& .MuiTablePagination-actions': {
+              color: '#94a3b8',
+            },
+          }}
         />
       )}
     </Paper>

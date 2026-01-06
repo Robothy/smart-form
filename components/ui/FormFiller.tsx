@@ -132,8 +132,8 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
   if (isLoading) {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography sx={{ mt: 2 }}>Loading form...</Typography>
+        <CircularProgress sx={{ color: '#6366f1' }} />
+        <Typography sx={{ mt: 2, color: '#94a3b8' }}>Loading form...</Typography>
       </Container>
     )
   }
@@ -141,8 +141,32 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
   if (error) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
-        <Button variant="outlined" onClick={() => router.back()}>
+        <Alert
+          severity="error"
+          sx={{
+            mb: 2,
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 2,
+            color: '#ef4444',
+          }}
+        >
+          {error}
+        </Alert>
+        <Button
+          variant="outlined"
+          onClick={() => router.back()}
+          sx={{
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: '#f1f5f9',
+            background: 'rgba(255, 255, 255, 0.02)',
+            fontWeight: 600,
+            '&:hover': {
+              border: '1px solid rgba(99, 102, 241, 0.5)',
+              background: 'rgba(99, 102, 241, 0.1)',
+            },
+          }}
+        >
           Go Back
         </Button>
       </Container>
@@ -152,17 +176,50 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
   if (isSuccess) {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
-        <Alert severity="success" sx={{ mb: 4 }}>
+        <Alert
+          severity="success"
+          sx={{
+            mb: 4,
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: 2,
+            color: '#10b981',
+          }}
+        >
           Thank you! Your form has been submitted successfully.
         </Alert>
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-          <Button variant="contained" onClick={() => {
-            setIsSuccess(false)
-            setValues({})
-          }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setIsSuccess(false)
+              setValues({})
+            }}
+            sx={{
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+              },
+            }}
+          >
             Submit Another Response
           </Button>
-          <Button variant="outlined" onClick={() => router.push('/')}>
+          <Button
+            variant="outlined"
+            onClick={() => router.push('/')}
+            sx={{
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#f1f5f9',
+              background: 'rgba(255, 255, 255, 0.02)',
+              fontWeight: 600,
+              '&:hover': {
+                border: '1px solid rgba(99, 102, 241, 0.5)',
+                background: 'rgba(99, 102, 241, 0.1)',
+              },
+            }}
+          >
             Return Home
           </Button>
         </Box>
@@ -177,18 +234,28 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box component="form" onSubmit={handleSubmit}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom sx={{ color: '#f1f5f9', fontWeight: 700 }}>
           {form.title}
         </Typography>
 
         {form.description && (
-          <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 4 }}>
+          <Typography variant="body1" sx={{ color: '#94a3b8', lineHeight: 1.7, mb: 4 }} paragraph>
             {form.description}
           </Typography>
         )}
 
         {error && (
-          <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 4,
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 2,
+              color: '#ef4444',
+            }}
+            onClose={() => setError(null)}
+          >
             {error}
           </Alert>
         )}
@@ -199,11 +266,11 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
               <Typography
                 variant="subtitle1"
                 gutterBottom
-                sx={{ fontWeight: field.required ? 500 : 400 }}
+                sx={{ fontWeight: 500, color: '#f1f5f9' }}
                 id={`${field.id!}-label`}
               >
                 {field.label}
-                {field.required && <span style={{ color: 'red' }}> *</span>}
+                {field.required && <span style={{ color: '#10b981' }}> *</span>}
               </Typography>
 
               {field.type === 'text' && (
@@ -255,7 +322,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
                   {field.options?.map((option) => (
                     <label
                       key={option.value}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#f1f5f9' }}
                     >
                       <input
                         type="radio"
@@ -265,12 +332,18 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
                         checked={values[field.id!] === option.value}
                         onChange={(e) => handleValueChange(field.id!, e.target.value)}
                         aria-label={option.label}
+                        style={{
+                          accentColor: '#6366f1',
+                          width: 18,
+                          height: 18,
+                          cursor: 'pointer',
+                        }}
                       />
                       <span>{option.label}</span>
                     </label>
                   ))}
                   {fieldErrors[field.id!] && (
-                    <Typography variant="caption" color="error" role="alert" id={`${field.id!}-error`}>
+                    <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ color: '#ef4444' }}>
                       {fieldErrors[field.id!]}
                     </Typography>
                   )}
@@ -288,7 +361,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
                   {field.options?.map((option) => (
                     <label
                       key={option.value}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#f1f5f9' }}
                     >
                       <input
                         type="checkbox"
@@ -305,12 +378,18 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
                           }
                         }}
                         aria-label={option.label}
+                        style={{
+                          accentColor: '#6366f1',
+                          width: 18,
+                          height: 18,
+                          cursor: 'pointer',
+                        }}
                       />
                       <span>{option.label}</span>
                     </label>
                   ))}
                   {fieldErrors[field.id!] && (
-                    <Typography variant="caption" color="error" role="alert" id={`${field.id!}-error`}>
+                    <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ color: '#ef4444' }}>
                       {fieldErrors[field.id!]}
                     </Typography>
                   )}
@@ -318,7 +397,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
               )}
 
               {fieldErrors[field.id!] && field.type !== 'radio' && field.type !== 'checkbox' && (
-                <Typography variant="caption" color="error" sx={{ mt: 0.5 }} role="alert" id={`${field.id!}-error`}>
+                <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ mt: 0.5, color: '#ef4444' }}>
                   {fieldErrors[field.id!]}
                 </Typography>
               )}
@@ -326,7 +405,15 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
           ))}
 
           {form.fields.length === 0 && (
-            <Alert severity="info">
+            <Alert
+              severity="info"
+              sx={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: 2,
+                color: '#3b82f6',
+              }}
+            >
               This form has no fields to fill out.
             </Alert>
           )}
@@ -337,6 +424,22 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
             size="large"
             fullWidth
             disabled={isSubmitting || form.fields.length === 0}
+            sx={{
+              fontWeight: 600,
+              fontSize: '1rem',
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+              py: 1.5,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+              },
+              '&:disabled': {
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#64748b',
+                boxShadow: 'none',
+              },
+            }}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Form'}
           </Button>
