@@ -196,13 +196,33 @@ export default function EditFormPage() {
         )}
 
         {error && (
-          <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 4,
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 2,
+              color: '#ef4444',
+            }}
+            onClose={() => setError(null)}
+          >
             {error}
           </Alert>
         )}
 
         {isSuccess && (
-          <Alert severity="success" sx={{ mb: 4 }} onClose={() => setIsSuccess(false)}>
+          <Alert
+            severity="success"
+            sx={{
+              mb: 4,
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 2,
+              color: '#10b981',
+            }}
+            onClose={() => setIsSuccess(false)}
+          >
             Form updated successfully!
           </Alert>
         )}

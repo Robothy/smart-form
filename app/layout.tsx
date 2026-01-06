@@ -3,8 +3,8 @@ import './globals.css'
 import { NavBar } from '@/components/forms/NavBar'
 
 export const metadata: Metadata = {
-  title: 'Simple Form - Form Builder',
-  description: 'Create, publish, and share forms',
+  title: 'FormForge - Premium Form Builder',
+  description: 'Create, publish, and share beautiful forms with ease',
 }
 
 export default function RootLayout({

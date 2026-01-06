@@ -92,17 +92,52 @@ export function FormCard({
           display: 'flex',
           flexDirection: 'column',
           cursor: 'pointer',
-          transition: 'transform 0.2s, box-shadow 0.2s',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          background: 'rgba(26, 26, 36, 0.6)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: 2,
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background: isPublished
+              ? 'linear-gradient(90deg, #10b981, #059669)'
+              : 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+          },
           '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: 4,
+            transform: 'translateY(-6px)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.2)',
+            borderColor: 'rgba(99, 102, 241, 0.3)',
+            '&::before': {
+              opacity: 1,
+            },
           },
         }}
         onClick={onClick}
       >
-        <CardContent sx={{ flexGrow: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 1.5 }}>
-            <Typography variant="h6" component="h2" sx={{ flex: 1, mr: 1.5, fontWeight: 600, lineHeight: 1.3 }}>
+        <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{
+                flex: 1,
+                mr: 2,
+                fontWeight: 700,
+                fontSize: '1.125rem',
+                lineHeight: 1.3,
+                letterSpacing: '-0.02em',
+                color: '#f1f5f9',
+              }}
+            >
               {title}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
@@ -110,9 +145,16 @@ export function FormCard({
               <IconButton
                 size="small"
                 onClick={handleDeleteClick}
-                color="error"
                 aria-label="Delete form"
-                sx={{ ml: 0.25 }}
+                sx={{
+                  ml: 0.25,
+                  color: '#94a3b8',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    color: '#ef4444',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                  },
+                }}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -120,7 +162,19 @@ export function FormCard({
           </Box>
 
           {description && (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            <Typography
+              variant="body2"
+              sx={{
+                mb: 2.5,
+                color: '#94a3b8',
+                fontSize: '0.875rem',
+                lineHeight: 1.6,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
               {description}
             </Typography>
           )}
@@ -129,27 +183,55 @@ export function FormCard({
             <Chip
               label={`${fieldsCount} field${fieldsCount !== 1 ? 's' : ''}`}
               size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.75rem' }}
+              sx={{
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#94a3b8',
+                height: 24,
+              }}
             />
             <Chip
               label={`${submissionsCount} submission${submissionsCount !== 1 ? 's' : ''}`}
               size="small"
-              color={submissionsCount > 0 ? 'primary' : 'default'}
-              variant={submissionsCount > 0 ? 'filled' : 'outlined'}
-              sx={{ fontSize: '0.75rem' }}
+              sx={{
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                background: submissionsCount > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                border: submissionsCount > 0 ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: submissionsCount > 0 ? '#10b981' : '#94a3b8',
+                height: 24,
+              }}
             />
           </Box>
         </CardContent>
 
-        <CardActions sx={{ pt: 0, px: 2, pb: 2 }}>
+        <CardActions sx={{ pt: 0, px: 2.5, pb: 2.5 }}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: '100%' }}>
             <ShareIconButton
               slug={slug || null}
               shareUrl={shareableLink || null}
               formStatus={status}
             />
-            <Button variant="outlined" onClick={handleButtonClick} sx={{ flex: 1 }}>
+            <Button
+              variant="outlined"
+              onClick={handleButtonClick}
+              sx={{
+                flex: 1,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  transform: 'translateY(-1px)',
+                },
+              }}
+            >
               {isPublished ? 'View Submissions' : 'Edit Form'}
             </Button>
           </Box>

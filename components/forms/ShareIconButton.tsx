@@ -67,7 +67,15 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
         onClick={handleClick}
         aria-label="Share form"
         size="small"
-        sx={{ ml: 1 }}
+        sx={{
+          ml: 1,
+          color: '#94a3b8',
+          transition: 'all 0.2s',
+          '&:hover': {
+            color: '#6366f1',
+            background: 'rgba(99, 102, 241, 0.1)',
+          },
+        }}
       >
         <ShareIcon fontSize="small" />
       </IconButton>
@@ -81,18 +89,28 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
         PaperProps={{
           sx: {
             borderRadius: 2,
+            background: 'rgba(26, 26, 36, 0.95)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
           },
         }}
       >
         <DialogTitle sx={{ pb: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" component="span" sx={{ fontWeight: 600, color: '#f1f5f9' }}>
               Share this form
             </Typography>
             <IconButton
               onClick={handleClose}
               size="small"
-              sx={{ ml: 1 }}
+              sx={{
+                ml: 1,
+                color: '#94a3b8',
+                '&:hover': {
+                  color: '#f1f5f9',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                },
+              }}
             >
               <Close fontSize="small" />
             </IconButton>
@@ -104,13 +122,14 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
             sx={{
               p: 1.5,
               mb: 2,
-              bgcolor: 'action.hover',
+              bgcolor: 'rgba(19, 19, 26, 0.8)',
               borderRadius: 1,
               fontFamily: 'monospace',
               fontSize: '0.8rem',
               wordBreak: 'break-all',
               border: 1,
-              borderColor: 'divider',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              color: '#94a3b8',
             }}
           >
             {shareUrl}
@@ -118,7 +137,17 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
 
           {copied && (
             <Box sx={{ mb: 2 }}>
-              <Chip label="Copied!" color="success" size="small" />
+              <Chip
+                label="Copied!"
+                size="small"
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  color: '#10b981',
+                }}
+              />
             </Box>
           )}
 
@@ -129,6 +158,16 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
               size="small"
               startIcon={<ContentCopy />}
               fullWidth
+              sx={{
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                fontWeight: 600,
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
             >
               Copy
             </Button>
@@ -138,6 +177,14 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
               size="small"
               startIcon={<OpenInNew />}
               fullWidth
+              sx={{
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+                },
+              }}
             >
               Open
             </Button>

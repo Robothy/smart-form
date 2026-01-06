@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Box, Button, Paper, Typography, TextField, Stack, IconButton } from '@mui/material'
+import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem } from '@mui/material'
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { FormField } from '@/components/ui/FormField'
 import { FormInput } from '@/components/ui/FormInput'
@@ -52,7 +52,20 @@ export function FormBuilder({
   // Handle clicks outside the form builder to collapse expanded field
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      // Check if click originated from MUI Menu/Select dropdown
+      const target = event.target as Element
+      const isMenuClick =
+        target.closest('.MuiMenu-root') ||
+        target.closest('.MuiPopover-root') ||
+        target.classList.contains('MuiMenuItem-root') ||
+        target.classList.contains('MuiBackdrop-root')
+
+      // Only collapse if clicking outside and not on a menu
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node) &&
+        !isMenuClick
+      ) {
         setExpandedFieldIndex(null)
       }
     }
@@ -68,6 +81,14 @@ export function FormBuilder({
   const handleFieldChange = (index: number, field: Partial<FormFieldData>) => {
     const updatedFields = [...localForm.fields]
     updatedFields[index] = { ...updatedFields[index], ...field }
+    const updated = { ...localForm, fields: updatedFields }
+    setLocalForm(updated)
+    onUpdate?.(updated)
+  }
+
+  const handleFieldTypeChange = (index: number, newType: FormFieldType) => {
+    const updatedFields = [...localForm.fields]
+    updatedFields[index] = { ...updatedFields[index], type: newType }
     const updated = { ...localForm, fields: updatedFields }
     setLocalForm(updated)
     onUpdate?.(updated)
@@ -112,9 +133,18 @@ export function FormBuilder({
   }
 
   return (
-    <Paper sx={{ p: 3 }} ref={containerRef}>
+    <Paper
+      sx={{
+        p: 3,
+        background: 'rgba(26, 26, 36, 0.6)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderRadius: 2,
+      }}
+      ref={containerRef}
+    >
       {showHeading && (
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom sx={{ color: '#f1f5f9', fontWeight: 700 }}>
           {readonly ? 'View Form' : localForm.id ? 'Edit Form' : 'Create New Form'}
         </Typography>
       )}
@@ -132,6 +162,23 @@ export function FormBuilder({
             }}
             disabled={readonly}
             placeholder="Enter form title"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                background: 'rgba(19, 19, 26, 0.8)',
+                '& input': {
+                  color: '#f1f5f9',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#94a3b8',
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+              },
+            }}
           />
         </FormField>
 
@@ -148,12 +195,29 @@ export function FormBuilder({
             }}
             disabled={readonly}
             placeholder="Enter form description (optional)"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                background: 'rgba(19, 19, 26, 0.8)',
+                '& textarea': {
+                  color: '#f1f5f9',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: '#94a3b8',
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'rgba(255, 255, 255, 0.15)',
+              },
+            }}
           />
         </FormField>
 
         {/* Form fields */}
         <Box>
-          <Typography variant="h6" sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#f1f5f9', fontWeight: 700 }}>
             Form Fields
           </Typography>
 
@@ -166,27 +230,37 @@ export function FormBuilder({
                   key={field.id || index}
                   onClick={() => !readonly && !isExpanded && setExpandedFieldIndex(index)}
                   sx={{
-                    p: 2,
+                    p: 2.5,
                     border: 1,
-                    borderColor: isExpanded ? 'primary.main' : 'divider',
-                    borderRadius: 1,
+                    borderColor: isExpanded ? 'rgba(99, 102, 241, 0.5)' : 'rgba(255, 255, 255, 0.08)',
+                    borderRadius: 2,
+                    background: isExpanded
+                      ? 'rgba(99, 102, 241, 0.05)'
+                      : 'rgba(255, 255, 255, 0.02)',
                     position: 'relative',
                     cursor: !readonly && !isExpanded ? 'pointer' : 'default',
                     transition: 'all 0.2s',
                     '&:hover': !readonly && !isExpanded ? {
-                      borderColor: 'primary.light',
-                      bgcolor: 'action.hover',
+                      borderColor: 'rgba(99, 102, 241, 0.3)',
+                      background: 'rgba(255, 255, 255, 0.04)',
                     } : {},
                   }}
                 >
                   {!readonly && !isExpanded && (
-                    <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                    <Box sx={{ position: 'absolute', top: 12, right: 12 }}>
                       <IconButton
                         onClick={() => removeField(index)}
-                        color="error"
                         size="small"
+                        sx={{
+                          color: '#94a3b8',
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            color: '#ef4444',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                          },
+                        }}
                       >
-                        <DeleteIcon />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Box>
                   )}
@@ -194,25 +268,37 @@ export function FormBuilder({
                   {/* View Mode - Collapsed */}
                   {!isExpanded && (
                     <Box sx={{ pr: 5 }}>
-                      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight={600}
+                        gutterBottom
+                        sx={{ color: '#f1f5f9', fontSize: '1rem' }}
+                      >
                         {field.label || '(Untitled field)'}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.875rem' }}>
                           Type: {field.type.charAt(0).toUpperCase() + field.type.slice(1)}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" sx={{ color: '#64748b' }}>
                           •
                         </Typography>
-                        <Typography variant="body2" color={field.required ? 'error.main' : 'text.secondary'}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: field.required ? '#10b981' : '#94a3b8',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                          }}
+                        >
                           {field.required ? 'Required' : 'Optional'}
                         </Typography>
                         {field.placeholder && (
                           <>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" sx={{ color: '#64748b' }}>
                               •
                             </Typography>
-                            <Typography variant="body2" color="text.secondary" noWrap>
+                            <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.875rem' }} noWrap>
                               Placeholder: {field.placeholder}
                             </Typography>
                           </>
@@ -223,14 +309,25 @@ export function FormBuilder({
 
                   {/* Edit Mode - Expanded */}
                   {isExpanded && (
-                    <Stack spacing={2}>
+                    <Stack spacing={2.5}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle2" color="primary">
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: '#6366f1', fontWeight: 600, fontSize: '0.875rem' }}
+                        >
                           Editing Field
                         </Typography>
                         <Button
                           size="small"
                           onClick={() => setExpandedFieldIndex(null)}
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.875rem',
+                            color: '#6366f1',
+                            '&:hover': {
+                              background: 'rgba(99, 102, 241, 0.1)',
+                            },
+                          }}
                         >
                           Done
                         </Button>
@@ -244,6 +341,23 @@ export function FormBuilder({
                           disabled={readonly}
                           placeholder="Field label"
                           autoFocus
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(19, 19, 26, 0.8)',
+                              '& input': {
+                                color: '#f1f5f9',
+                              },
+                            },
+                            '& .MuiInputLabel-root': {
+                              color: '#94a3b8',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 255, 255, 0.15)',
+                            },
+                          }}
                         />
                       </FormField>
 
@@ -252,15 +366,73 @@ export function FormBuilder({
                           fullWidth
                           select
                           value={field.type}
-                          onChange={(e) => handleFieldChange(index, { type: e.target.value as FormFieldType })}
+                          onChange={(e) => {
+                            const newType = e.target.value as FormFieldType
+                            handleFieldTypeChange(index, newType)
+                          }}
                           disabled={readonly}
-                          SelectProps={{ native: true }}
+                          SelectProps={{
+                            MenuProps: {
+                              disableScrollLock: true,
+                              PaperProps: {
+                                sx: {
+                                  background: 'rgba(26, 26, 36, 0.98)',
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                  backdropFilter: 'blur(20px)',
+                                  borderRadius: '0.75rem',
+                                  mt: 1,
+                                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+                                },
+                              },
+                              sx: {
+                                '& .MuiMenu-list': {
+                                  py: 0.5,
+                                  padding: '0.5rem',
+                                },
+                              },
+                            },
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(19, 19, 26, 0.8)',
+                              color: '#f1f5f9',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'rgba(255, 255, 255, 0.15)',
+                              },
+                            },
+                            '& .MuiSelect-icon': {
+                              color: '#94a3b8',
+                            },
+                          }}
                         >
-                          <option value="text">Text</option>
-                          <option value="textarea">Textarea</option>
-                          <option value="date">Date</option>
-                          <option value="radio">Radio</option>
-                          <option value="checkbox">Checkbox</option>
+                          {['text', 'textarea', 'date', 'radio', 'checkbox'].map((type) => (
+                            <MenuItem
+                              key={type}
+                              value={type}
+                              sx={{
+                                color: '#f1f5f9',
+                                borderRadius: '0.375rem',
+                                my: 0.25,
+                                mx: 0.5,
+                                py: 0.75,
+                                px: 1,
+                                '&:hover': {
+                                  background: 'rgba(99, 102, 241, 0.15)',
+                                },
+                                '&.Mui-selected': {
+                                  background: 'rgba(99, 102, 241, 0.25)',
+                                  '&:hover': {
+                                    background: 'rgba(99, 102, 241, 0.3)',
+                                  },
+                                },
+                              }}
+                            >
+                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </MenuItem>
+                          ))}
                         </TextField>
                       </FormField>
 
@@ -271,6 +443,23 @@ export function FormBuilder({
                           onChange={(e) => handleFieldChange(index, { placeholder: e.target.value })}
                           disabled={readonly}
                           placeholder="Placeholder text"
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              background: 'rgba(19, 19, 26, 0.8)',
+                              '& input': {
+                                color: '#f1f5f9',
+                              },
+                            },
+                            '& .MuiInputLabel-root': {
+                              color: '#94a3b8',
+                            },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 255, 255, 0.1)',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'rgba(255, 255, 255, 0.15)',
+                            },
+                          }}
                         />
                       </FormField>
 
@@ -279,6 +468,18 @@ export function FormBuilder({
                           variant={field.required ? 'contained' : 'outlined'}
                           onClick={() => handleFieldChange(index, { required: !field.required })}
                           disabled={readonly}
+                          sx={{
+                            fontWeight: 600,
+                            ...(field.required
+                              ? {
+                                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                }
+                              : {
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                                  color: '#f1f5f9',
+                                  background: 'rgba(255, 255, 255, 0.02)',
+                                }),
+                          }}
                         >
                           {field.required ? 'Required' : 'Optional'}
                         </Button>
@@ -290,8 +491,19 @@ export function FormBuilder({
             })}
 
             {localForm.fields.length === 0 && (
-              <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-                <Typography>No fields added yet. Click "Add Field" to get started.</Typography>
+              <Box
+                sx={{
+                  p: 4,
+                  textAlign: 'center',
+                  color: '#64748b',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: 2,
+                  border: '1px dashed rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                <Typography sx={{ fontSize: '0.9375rem' }}>
+                  No fields added yet. Click "Add Field" to get started.
+                </Typography>
               </Box>
             )}
           </Stack>
@@ -302,6 +514,18 @@ export function FormBuilder({
                 startIcon={<AddIcon />}
                 onClick={addField}
                 variant="outlined"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  color: '#6366f1',
+                  background: 'rgba(99, 102, 241, 0.05)',
+                  '&:hover': {
+                    border: '1px solid rgba(99, 102, 241, 0.5)',
+                    background: 'rgba(99, 102, 241, 0.15)',
+                    transform: 'translateY(-1px)',
+                  },
+                }}
               >
                 Add Field
               </Button>
@@ -317,6 +541,22 @@ export function FormBuilder({
             onClick={handleSave}
             disabled={isSaving || !localForm.title.trim()}
             fullWidth
+            sx={{
+              fontWeight: 600,
+              fontSize: '1rem',
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+              py: 1.5,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+              },
+              '&:disabled': {
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#64748b',
+                boxShadow: 'none',
+              },
+            }}
           >
             {isSaving ? 'Saving...' : localForm.id ? 'Save Changes' : 'Create Form'}
           </Button>

@@ -24,9 +24,37 @@ export interface FormFieldProps {
  */
 export function FormField({ label, required, error, children, sx }: FormFieldProps) {
   return (
-    <FormControl sx={{ mb: 2, width: '100%', ...sx }} error={!!error}>
+    <FormControl
+      sx={{
+        mb: 2.5,
+        width: '100%',
+        ...sx,
+        '& .MuiFormLabel-root': {
+          color: '#94a3b8',
+          fontWeight: 500,
+          fontSize: '0.875rem',
+          '&.Mui-required': {
+            color: '#94a3b8',
+          },
+        },
+        '& .MuiFormHelperText-root': {
+          color: '#ef4444',
+          fontSize: '0.8125rem',
+        },
+      }}
+      error={!!error}
+    >
       {label && (
-        <FormLabel component="legend" required={required}>
+        <FormLabel
+          component="legend"
+          required={required}
+          sx={{
+            color: '#94a3b8',
+            fontWeight: 500,
+            fontSize: '0.875rem',
+            mb: 1,
+          }}
+        >
           {label}
         </FormLabel>
       )}

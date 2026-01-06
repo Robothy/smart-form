@@ -199,10 +199,11 @@ export default function ViewFormPage() {
           left: 0,
           right: 0,
           zIndex: theme.zIndex.appBar - 1,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(6px)',
-          bgcolor: theme.palette.background.paper,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          background: 'rgba(10, 10, 15, 0.85)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
         })}
       >
         <Box
@@ -212,16 +213,32 @@ export default function ViewFormPage() {
             display: 'flex',
             alignItems: 'center',
             gap: 2,
-            py: 1.25,
+            py: 1.5,
             px: { xs: 2, sm: 3 },
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} noWrap>
+            <Typography
+              variant="subtitle1"
+              fontWeight={700}
+              fontSize="1.125rem"
+              letterSpacing="-0.02em"
+              noWrap
+              sx={{ color: '#f1f5f9' }}
+            >
               {form.title}
             </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {isPublished ? 'Published' : 'Draft'} • {form.fields?.length || 0} field{(form.fields?.length || 0) !== 1 ? 's' : ''}
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#94a3b8',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+              }}
+              noWrap
+            >
+              {isPublished ? 'Published' : 'Draft'} • {form.fields?.length || 0} field
+              {(form.fields?.length || 0) !== 1 ? 's' : ''}
             </Typography>
           </Box>
 
@@ -230,7 +247,19 @@ export default function ViewFormPage() {
               variant="outlined"
               startIcon={<ArrowBackIcon />}
               onClick={() => router.push('/forms')}
-              sx={{ borderRadius: 999, px: 2.5 }}
+              sx={{
+                borderRadius: 999,
+                px: 2.5,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
             >
               Back
             </Button>
@@ -239,23 +268,43 @@ export default function ViewFormPage() {
                 variant="outlined"
                 startIcon={copied ? <CopyIcon /> : <ShareIcon />}
                 onClick={handleCopyLink}
-                sx={{ borderRadius: 999, px: 2.5 }}
+                sx={{
+                  borderRadius: 999,
+                  px: 2.5,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#f1f5f9',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  '&:hover': {
+                    border: '1px solid rgba(99, 102, 241, 0.5)',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                  },
+                }}
               >
                 {copied ? 'Copied!' : 'Copy Link'}
               </Button>
             )}
             {isPublished && (
-              <CopyFormButton
-                formId={formId}
-                onError={handleCopyError}
-              />
+              <CopyFormButton formId={formId} onError={handleCopyError} />
             )}
             <Button
               variant="outlined"
-              color="error"
               startIcon={<DeleteIcon />}
               onClick={handleDeleteClick}
-              sx={{ borderRadius: 999, px: 2.5 }}
+              sx={{
+                borderRadius: 999,
+                px: 2.5,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                color: '#ef4444',
+                background: 'rgba(239, 68, 68, 0.05)',
+                '&:hover': {
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                },
+              }}
             >
               Delete
             </Button>
@@ -264,7 +313,18 @@ export default function ViewFormPage() {
                 variant="contained"
                 startIcon={<VisibilityIcon />}
                 onClick={() => router.push(`/forms/${formId}/submissions`)}
-                sx={{ borderRadius: 999, px: 3 }}
+                sx={{
+                  borderRadius: 999,
+                  px: 3,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                  boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+                  },
+                }}
               >
                 View Submissions
               </Button>
@@ -274,119 +334,248 @@ export default function ViewFormPage() {
       </Box>
 
       <Container maxWidth="md" sx={{ py: 4, mt: 18 }}>
-      <Stack spacing={3}>
-        {/* Share Link Display at the top - only for published forms */}
-        <ShareLinkDisplay
-          slug={form.slug ?? null}
-          shareUrl={shareableLink || null}
-          formStatus={form.status}
-        />
+        <Stack spacing={3}>
+          {/* Share Link Display at the top - only for published forms */}
+          <ShareLinkDisplay
+            slug={form.slug ?? null}
+            shareUrl={shareableLink || null}
+            formStatus={form.status}
+          />
 
-        {/* Header - simplified */}
-        <Box>
-          {form.description && (
-            <Typography variant="body1" color="text.secondary" paragraph>
-              {form.description}
-            </Typography>
+          {/* Header - simplified */}
+          <Box>
+            {form.description && (
+              <Typography
+                variant="body1"
+                sx={{ color: '#94a3b8', lineHeight: 1.7 }}
+                paragraph
+              >
+                {form.description}
+              </Typography>
+            )}
+          </Box>
+
+          {publishSuccess && (
+            <Alert
+              severity="success"
+              sx={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: 2,
+                color: '#10b981',
+              }}
+              onClose={() => setPublishSuccess(false)}
+            >
+              Form published successfully! Your shareable link is ready.
+            </Alert>
           )}
-        </Box>
 
-        {publishSuccess && (
-          <Alert severity="success" onClose={() => setPublishSuccess(false)}>
-            Form published successfully! Your shareable link is ready.
-          </Alert>
-        )}
+          {error && (
+            <Alert
+              severity="error"
+              sx={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 2,
+                color: '#ef4444',
+              }}
+              onClose={() => setError(null)}
+            >
+              {error}
+            </Alert>
+          )}
 
-        {error && (
-          <Alert severity="error" onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
+          {/* Form details */}
+          <Paper
+            sx={{
+              p: 4,
+              background: 'rgba(26, 26, 36, 0.6)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: 2,
+            }}
+          >
+            {form.fields && form.fields.length > 0 ? (
+              <Stack spacing={2}>
+                {form.fields.map((field, index) => (
+                  <Box
+                    key={field.id || index}
+                    sx={{
+                      p: 2.5,
+                      border: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                      borderRadius: 2,
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        borderColor: 'rgba(99, 102, 241, 0.2)',
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ color: '#f1f5f9', fontWeight: 600, fontSize: '1rem' }}
+                    >
+                      {index + 1}. {field.label}
+                      {field.required && <span style={{ color: '#10b981' }}> *</span>}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, mt: 1.5 }}>
+                      <Chip
+                        label={field.type}
+                        size="small"
+                        sx={{
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          background: 'rgba(99, 102, 241, 0.15)',
+                          border: '1px solid rgba(99, 102, 241, 0.3)',
+                          color: '#6366f1',
+                          height: 24,
+                        }}
+                      />
+                      <Chip
+                        label={field.required ? 'Required' : 'Optional'}
+                        size="small"
+                        sx={{
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          background: field.required
+                            ? 'rgba(16, 185, 129, 0.15)'
+                            : 'rgba(255, 255, 255, 0.05)',
+                          border: field.required
+                            ? '1px solid rgba(16, 185, 129, 0.3)'
+                            : '1px solid rgba(255, 255, 255, 0.1)',
+                          color: field.required ? '#10b981' : '#94a3b8',
+                          height: 24,
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
+            ) : (
+              <Alert
+                severity="info"
+                sx={{
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: 2,
+                  color: '#3b82f6',
+                }}
+              >
+                No fields added to this form yet.
+              </Alert>
+            )}
+          </Paper>
 
-        {/* Form details */}
-        <Paper sx={{ p: 4 }}>
-          {form.fields && form.fields.length > 0 ? (
-            <Stack spacing={2}>
-              {form.fields.map((field, index) => (
-                <Box
-                  key={field.id || index}
+          {/* Publish/Share section */}
+          {!isPublished && (
+            <Paper
+              sx={{
+                p: 4,
+                background: 'rgba(26, 26, 36, 0.6)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 2,
+              }}
+            >
+              <Stack spacing={2}>
+                <Typography variant="h6" sx={{ color: '#f1f5f9', fontWeight: 700 }}>
+                  Publish Form
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#94a3b8', lineHeight: 1.7 }}>
+                  Publishing will generate a shareable link and make the form available to
+                  users. Published forms become read-only.
+                </Typography>
+                {(!form.fields || form.fields.length === 0) && (
+                  <Alert
+                    severity="warning"
+                    sx={{
+                      background: 'rgba(245, 158, 11, 0.1)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      borderRadius: 2,
+                      color: '#f59e0b',
+                    }}
+                  >
+                    You need to add at least one field before publishing this form.
+                  </Alert>
+                )}
+                <Button
+                  variant="contained"
+                  onClick={handlePublish}
+                  disabled={isPublishing || !form.fields || form.fields.length === 0}
                   sx={{
-                    p: 2,
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 1,
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                    py: 1.5,
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)',
+                    },
+                    '&:disabled': {
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: '#64748b',
+                      boxShadow: 'none',
+                    },
                   }}
                 >
-                  <Typography variant="subtitle2">
-                    {index + 1}. {field.label}
-                    {field.required && <span style={{ color: 'red' }}> *</span>}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
-                    <Chip label={field.type} size="small" variant="outlined" />
-                    <Chip label={field.required ? 'Required' : 'Optional'} size="small" />
-                  </Box>
-                </Box>
-              ))}
-            </Stack>
-          ) : (
-            <Alert severity="info">No fields added to this form yet.</Alert>
+                  {isPublishing ? 'Publishing...' : 'Publish Form'}
+                </Button>
+              </Stack>
+            </Paper>
           )}
-        </Paper>
 
-        {/* Publish/Share section */}
-        {!isPublished && (
-          <Paper sx={{ p: 4 }}>
-            <Stack spacing={2}>
-              <Typography variant="h6">Publish Form</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Publishing will generate a shareable link and make the form available to users.
-                Published forms become read-only.
-              </Typography>
-              {(!form.fields || form.fields.length === 0) && (
-                <Alert severity="warning">
-                  You need to add at least one field before publishing this form.
-                </Alert>
-              )}
-              <Button
-                variant="contained"
-                onClick={handlePublish}
-                disabled={isPublishing || !form.fields || form.fields.length === 0}
-              >
-                {isPublishing ? 'Publishing...' : 'Publish Form'}
-              </Button>
-            </Stack>
-          </Paper>
-        )}
+          {/* Edit button for draft forms */}
+          {!isPublished && (
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              onClick={() => router.push(`/forms/${formId}/edit`)}
+              sx={{
+                fontWeight: 600,
+                fontSize: '1rem',
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
+                py: 1.5,
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
+                },
+              }}
+            >
+              Edit Form
+            </Button>
+          )}
 
-        {/* Edit button for draft forms */}
-        {!isPublished && (
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={() => router.push(`/forms/${formId}/edit`)}
-          >
-            Edit Form
-          </Button>
-        )}
+          {/* Delete confirmation dialog */}
+          <DeleteConfirmationDialog
+            open={deleteDialogOpen}
+            formTitle={form.title}
+            submissionsCount={form.fields?.length || 0}
+            onClose={handleDeleteClose}
+            onConfirm={handleDeleteConfirm}
+            isDeleting={isDeleting}
+          />
 
-        {/* Delete confirmation dialog */}
-        <DeleteConfirmationDialog
-          open={deleteDialogOpen}
-          formTitle={form.title}
-          submissionsCount={form.fields?.length || 0}
-          onClose={handleDeleteClose}
-          onConfirm={handleDeleteConfirm}
-          isDeleting={isDeleting}
-        />
-
-        {deleteError && (
-          <Alert severity="error" onClose={() => setDeleteError(null)}>
-            {deleteError}
-          </Alert>
-        )}
-      </Stack>
-    </Container>
+          {deleteError && (
+            <Alert
+              severity="error"
+              sx={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: 2,
+                color: '#ef4444',
+              }}
+              onClose={() => setDeleteError(null)}
+            >
+              {deleteError}
+            </Alert>
+          )}
+        </Stack>
+      </Container>
     </>
   )
 }

@@ -47,10 +47,11 @@ export function EditToolbar({
         left: 0,
         right: 0,
         zIndex: theme.zIndex.appBar - 1,
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        backdropFilter: 'blur(6px)',
-        bgcolor: theme.palette.background.paper,
-        boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        background: 'rgba(10, 10, 15, 0.85)',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
       })}
     >
       <Box
@@ -60,16 +61,31 @@ export function EditToolbar({
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          py: 1.25,
+          py: 1.5,
           px: { xs: 2, sm: 3 },
         }}
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="subtitle1" fontWeight={600} noWrap>
+          <Typography
+            variant="subtitle1"
+            fontWeight={700}
+            fontSize="1.125rem"
+            letterSpacing="-0.02em"
+            noWrap
+            sx={{ color: '#f1f5f9' }}
+          >
             {title}
           </Typography>
           {subtitle && (
-            <Typography variant="caption" color="text.secondary" noWrap>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#94a3b8',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+              }}
+              noWrap
+            >
               {subtitle}
             </Typography>
           )}
@@ -81,7 +97,19 @@ export function EditToolbar({
               variant="outlined"
               startIcon={<VisibilityIcon fontSize="small" />}
               onClick={onPreview}
-              sx={{ borderRadius: 999, px: 2.5 }}
+              sx={{
+                borderRadius: 999,
+                px: 2.5,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
             >
               Preview
             </Button>
@@ -89,29 +117,73 @@ export function EditToolbar({
           {onDiscard && (
             <Button
               variant="outlined"
-              color="secondary"
               startIcon={<ReplayIcon fontSize="small" />}
               onClick={onDiscard}
-              sx={{ borderRadius: 999, px: 2.5 }}
+              sx={{
+                borderRadius: 999,
+                px: 2.5,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                '&:hover': {
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                },
+              }}
             >
               Discard
             </Button>
           )}
           <Button
             variant="outlined"
-            startIcon={isSaving ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
+            startIcon={isSaving ? <CircularProgress size={16} sx={{ color: '#f1f5f9' }} /> : <SaveIcon />}
             onClick={onSave}
             disabled={isSaving || isPublishing}
-            sx={{ borderRadius: 999, px: 2.5 }}
+            sx={{
+              borderRadius: 999,
+              px: 2.5,
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#f1f5f9',
+              background: 'rgba(255, 255, 255, 0.02)',
+              '&:hover': {
+                border: '1px solid rgba(99, 102, 241, 0.5)',
+                background: 'rgba(99, 102, 241, 0.1)',
+              },
+              '&:disabled': {
+                color: '#64748b',
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                background: 'rgba(255, 255, 255, 0.01)',
+              },
+            }}
           >
             {isSaving ? 'Saving…' : 'Save Changes'}
           </Button>
           <Button
             variant="contained"
-            startIcon={isPublishing ? <CircularProgress size={16} color="inherit" /> : <PublishIcon />}
+            startIcon={isPublishing ? <CircularProgress size={16} sx={{ color: '#fff' }} /> : <PublishIcon />}
             onClick={onPublish}
             disabled={isSaving || isPublishing || !hasFields}
-            sx={{ borderRadius: 999, px: 3 }}
+            sx={{
+              borderRadius: 999,
+              px: 3,
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)',
+              },
+              '&:disabled': {
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#64748b',
+                boxShadow: 'none',
+              },
+            }}
           >
             {isPublishing ? 'Publishing…' : 'Publish'}
           </Button>

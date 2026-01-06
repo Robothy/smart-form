@@ -116,20 +116,67 @@ export default function SubmissionsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Submissions</Typography>
+      <Box
+        sx={{
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant="h4" sx={{ color: '#f1f5f9', fontWeight: 700 }}>
+          Submissions
+        </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Link href={`/forms/${formId}/view`}>
-            <Button variant="outlined">Back to Form</Button>
+            <Button
+              variant="outlined"
+              sx={{
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                fontWeight: 600,
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
+            >
+              Back to Form
+            </Button>
           </Link>
           <Link href="/forms">
-            <Button variant="outlined">All Forms</Button>
+            <Button
+              variant="outlined"
+              sx={{
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f1f5f9',
+                background: 'rgba(255, 255, 255, 0.02)',
+                fontWeight: 600,
+                '&:hover': {
+                  border: '1px solid rgba(99, 102, 241, 0.5)',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                },
+              }}
+            >
+              All Forms
+            </Button>
           </Link>
         </Box>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+        <Alert
+          severity="error"
+          sx={{
+            mb: 4,
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 2,
+            color: '#ef4444',
+          }}
+          onClose={() => setError(null)}
+        >
           {error}
         </Alert>
       )}
