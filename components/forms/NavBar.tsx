@@ -9,6 +9,7 @@ import {
   Container,
 } from '@mui/material'
 import Link from 'next/link'
+import { layoutStyles } from '@/theme'
 
 interface NavItem {
   label: string
@@ -37,14 +38,7 @@ export function NavBar() {
     <AppBar
       position="fixed"
       elevation={0}
-      sx={{
-        background: 'rgba(10, 10, 15, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        zIndex: (theme) => theme.zIndex.appBar,
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
-      }}
+      sx={layoutStyles.glassToolbar}
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ py: 1 }}>

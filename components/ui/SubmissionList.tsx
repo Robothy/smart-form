@@ -2,6 +2,7 @@
 
 import { Box, Typography, Card, CardContent, Chip, Button, Stack, Alert } from '@mui/material'
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material'
+import { layoutStyles, flexStyles } from '@/theme'
 
 export interface SubmissionData {
   id: string
@@ -60,7 +61,7 @@ export function SubmissionList({
         {submissions.map((submission) => (
           <Card key={submission.id}>
             <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Box sx={{ ...flexStyles.between, mb: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   Submitted: {formatDate(submission.submittedAt)}
                 </Typography>
@@ -89,7 +90,7 @@ export function SubmissionList({
 
       {/* Pagination controls */}
       {pagination.totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ ...flexStyles.center, gap: 2 }}>
           <Button
             startIcon={<KeyboardArrowLeft />}
             onClick={() => onPageChange(pagination.page - 1)}

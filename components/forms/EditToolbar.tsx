@@ -11,6 +11,7 @@ import PublishIcon from '@mui/icons-material/Publish'
 import SaveIcon from '@mui/icons-material/Save'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import ReplayIcon from '@mui/icons-material/Replay'
+import { layoutStyles, buttonStyles } from '@/theme'
 
 interface EditToolbarProps {
   title: string
@@ -41,18 +42,7 @@ export function EditToolbar({
 }: EditToolbarProps) {
   return (
     <Box
-      sx={(theme) => ({
-        position: 'fixed',
-        top: { xs: 56, sm: 64 },
-        left: 0,
-        right: 0,
-        zIndex: theme.zIndex.appBar - 1,
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        background: 'rgba(10, 10, 15, 0.85)',
-        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
-      })}
+      sx={{ ...layoutStyles.glassToolbar, top: { xs: 56, sm: 64 } }}
     >
       <Box
         sx={{
@@ -168,16 +158,10 @@ export function EditToolbar({
             onClick={onPublish}
             disabled={isSaving || isPublishing || !hasFields}
             sx={{
+              ...buttonStyles.success,
               borderRadius: 999,
               px: 3,
-              fontWeight: 600,
               fontSize: '0.875rem',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)',
-              },
               '&:disabled': {
                 background: 'rgba(255, 255, 255, 0.05)',
                 color: '#64748b',

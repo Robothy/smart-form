@@ -1,19 +1,19 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: 1.0.1 → 2.0.0
-Rationale: MAJOR - Removed Principle II (AI-Native Design) following removal of AI features from codebase (002-remove-ai branch). This is a backward-incompatible governance change as it removes a core design principle.
+Version Change: 2.0.0 → 2.1.0
+Rationale: MINOR - Added new Principle V (Clean Commit & PR Messages) establishing governance that git commits and pull requests MUST NOT include AI assistant attribution or branding. This expands governance scope without removing or redefining existing principles.
 
 Modified Sections:
-- Principle II (AI-Native Design) → REMOVED
-- Principle V (Progressive Enhancement) → Renumbered to Principle II
-- Subsequent principles renumbered accordingly
+- Development Workflow > Commit Conventions: Added rule prohibiting AI attribution
+- Development Workflow > NEW SECTION: Pull Request Standards
 
-Removed Sections:
-- II. AI-Native Design (entire principle removed)
+Added Sections:
+- V. Clean Commit & PR Messages (new principle)
+- Pull Request Standards (under Development Workflow)
 
 Templates Status:
-- .specify/templates/plan-template.md: ✅ Updated - Removed AI-Native Design from Constitution Check, renumbered principles
+- .specify/templates/plan-template.md: ✅ No changes needed (no commit/PR content)
 - .specify/templates/spec-template.md: ✅ No changes needed
 - .specify/templates/tasks-template.md: ✅ No changes needed
 
@@ -48,6 +48,12 @@ Core form functionality MUST work without JavaScript (where feasible). Pages MUS
 
 **Rationale**: Next.js supports SSR/SSG for performance. Not everything needs to be a client component.
 
+### V. Clean Commit & PR Messages
+
+Git commit messages and pull request descriptions MUST NOT include AI assistant branding, attribution, or promotional text. Prohibited content includes: "Generated with Claude Code", "Co-Authored-By: Anthropic", similar AI tool references, or any promotional URLs. Commit messages MUST follow conventional commit format focusing solely on what changed and why. PR descriptions MUST describe the change clearly without crediting AI tools.
+
+**Rationale**: Version control history should focus on technical changes, not tool attribution. AI assistance is an implementation detail, not a commit-worthy credit. Clean history improves readability and professional presentation.
+
 ## Development Workflow
 
 ### Branch Strategy
@@ -65,6 +71,18 @@ Commits MUST follow conventional commits:
 - `refactor:` Code refactoring without behavior change
 - `test:` Adding or updating tests
 - `chore:` Build/configuration changes
+
+**Prohibited**: AI assistant attribution (e.g., "Generated with Claude Code", "Co-Authored-By: Anthropic"), promotional URLs, or any tool branding.
+
+### Pull Request Standards
+
+Pull request titles MUST be descriptive and concise. PR descriptions MUST include:
+- Summary of changes (1-3 sentences)
+- Key technical decisions (if any)
+- Testing approach (manual or automated)
+- Breaking changes (if applicable)
+
+**Prohibited**: AI assistant branding, "Generated with..." footer blocks, Co-Authored-By tags for AI tools, or any attribution to AI assistants. The focus is on what changed, not what tool helped create it.
 
 ### Code Review Requirements
 
@@ -136,4 +154,4 @@ This constitution governs all development for the Simple Form project. It supers
 - Features violating principles MUST document justification in Complexity Tracking table
 - Reviewers MUST verify constitution compliance
 
-**Version**: 2.0.0 | **Ratified**: 2025-12-31 | **Last Amended**: 2026-01-05
+**Version**: 2.1.0 | **Ratified**: 2025-12-31 | **Last Amended**: 2026-01-06

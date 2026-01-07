@@ -7,6 +7,7 @@ import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
 import SaveIcon from '@mui/icons-material/Save'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
+import { buttonStyles } from '@/theme'
 
 /**
  * Form creation page - create a new form with fields
@@ -121,7 +122,7 @@ export default function NewFormPage() {
               startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
               onClick={() => handleSave({ title: form.title, description: form.description, fields: form.fields })}
               disabled={isLoading || !form.title.trim()}
-              sx={{ borderRadius: 999, px: 3 }}
+              sx={{ ...buttonStyles.primary, borderRadius: 999, px: 3 }}
             >
               {isLoading ? 'Creating…' : 'Create Form'}
             </Button>

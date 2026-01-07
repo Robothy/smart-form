@@ -7,6 +7,7 @@ import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
 import { Button } from '@/components/ui/Button'
 import { EditToolbar } from '@/components/forms/EditToolbar'
 import Link from 'next/link'
+import { flexStyles } from '@/theme'
 
 /**
  * Form edit page - edit an existing draft form
@@ -179,7 +180,7 @@ export default function EditFormPage() {
 
       <Container maxWidth="md" sx={{ py: 4, mt: isPublished ? 0 : 18 }}>
         {isPublished && (
-          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ mb: 4, ...flexStyles.between }}>
             <Typography variant="h4">
               View Form (Read-Only)
             </Typography>

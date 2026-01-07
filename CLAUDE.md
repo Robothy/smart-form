@@ -8,6 +8,10 @@ Auto-generated from all feature plans. Last updated: 2026-01-04
 - libSQL (embedded SQLite-compatible database) at `data/simple-form.db` (003-publish-share)
 - TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24 (004-form-management-improvements)
 - libSQL embedded SQLite database at `data/simple-form.db` (004-form-management-improvements)
+- [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (005-css-refactor)
+- [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (005-css-refactor)
+- TypeScript 5.7 (via Next.js 15.1) + MUI v6, React 19, Next.js 15.1 (005-css-refactor)
+- N/A (no data changes) (005-css-refactor)
 
 ## Project Structure
 
@@ -77,9 +81,9 @@ TypeScript 5.x (via Next.js): Follow standard conventions
 - No global state management library needed
 
 ## Recent Changes
+- 005-css-refactor: Added TypeScript 5.7 (via Next.js 15.1) + MUI v6, React 19, Next.js 15.1
+- 005-css-refactor: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 - 004-form-management-improvements: Added TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24
-- 004-form-management-improvements: Added TypeScript 5.7 (via Next.js 15.1) + React 19, MUI v6, @libsql/client, drizzle-orm 0.36, zod 3.24
-- 003-publish-share: Added TypeScript 5.7 (via Next.js 15.1) + Next.js 15.1, React 19, MUI v6, Drizzle ORM 0.36, Zod 3.24, @libsql/client 0.10
   - Removed AI assistant components (AIAssistant, FillAssistant)
   - Removed AI API endpoints (/api/ai/*)
   - Removed AI library code (lib/ai/*)

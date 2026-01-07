@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/SubmissionGrid'
 import Link from 'next/link'
+import { flexStyles } from '@/theme'
 
 /**
  * Form submissions page - view all submissions for a published form
@@ -119,15 +120,13 @@ export default function SubmissionsPage() {
       <Box
         sx={{
           mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          ...flexStyles.between,
         }}
       >
         <Typography variant="h4" sx={{ color: '#f1f5f9', fontWeight: 700 }}>
           Submissions
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ ...flexStyles.gap.sm }}>
           <Link href={`/forms/${formId}/view`}>
             <Button
               variant="outlined"

@@ -9,6 +9,7 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material'
+import { buttonStyles } from '@/theme'
 
 interface DeleteConfirmationDialogProps {
   open: boolean
@@ -52,6 +53,7 @@ export function DeleteConfirmationDialog({
           autoFocus
           disabled={isDeleting}
           startIcon={isDeleting ? <CircularProgress size={16} color="inherit" /> : null}
+          sx={buttonStyles.danger}
         >
           {isDeleting ? 'Deleting...' : 'Delete'}
         </Button>

@@ -4,6 +4,7 @@ import { FormFiller } from '@/components/ui/FormFiller'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Container, Box, Button } from '@mui/material'
 import Link from 'next/link'
+import { buttonStyles } from '@/theme'
 
 /**
  * Form fill page - allows users to fill out a published form
@@ -18,7 +19,7 @@ export default function FillFormPage() {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ mb: 2 }}>
         <Link href="/">
-          <Button variant="outlined" size="small">
+          <Button variant="outlined" size="small" sx={buttonStyles.ghost}>
             Back to Home
           </Button>
         </Link>

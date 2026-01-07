@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { Container, Typography, Box, Alert, CircularProgress, Button } from '@mui/material'
 import { FormInput } from '@/components/ui/FormInput'
 import type { FormFieldData } from '@/components/ui/FormBuilder'
+import { buttonStyles, flexStyles } from '@/theme'
 
 export interface FormFillerProps {
   formId?: string
@@ -131,7 +132,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
 
   if (isLoading) {
     return (
-      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="md" sx={{ py: 8, ...flexStyles.center, flexDirection: 'column' }}>
         <CircularProgress sx={{ color: '#6366f1' }} />
         <Typography sx={{ mt: 2, color: '#94a3b8' }}>Loading form...</Typography>
       </Container>
@@ -157,14 +158,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
           variant="outlined"
           onClick={() => router.back()}
           sx={{
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#f1f5f9',
-            background: 'rgba(255, 255, 255, 0.02)',
-            fontWeight: 600,
-            '&:hover': {
-              border: '1px solid rgba(99, 102, 241, 0.5)',
-              background: 'rgba(99, 102, 241, 0.1)',
-            },
+            ...buttonStyles.ghost,
           }}
         >
           Go Back
@@ -175,7 +169,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
 
   if (isSuccess) {
     return (
-      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="md" sx={{ py: 8, ...flexStyles.center, flexDirection: 'column' }}>
         <Alert
           severity="success"
           sx={{
@@ -188,37 +182,21 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
         >
           Thank you! Your form has been submitted successfully.
         </Alert>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <Box sx={{ ...flexStyles.gap.sm, justifyContent: 'center' }}>
           <Button
             variant="contained"
             onClick={() => {
               setIsSuccess(false)
               setValues({})
             }}
-            sx={{
-              fontWeight: 600,
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-              },
-            }}
+            sx={buttonStyles.primary}
           >
             Submit Another Response
           </Button>
           <Button
             variant="outlined"
             onClick={() => router.push('/')}
-            sx={{
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#f1f5f9',
-              background: 'rgba(255, 255, 255, 0.02)',
-              fontWeight: 600,
-              '&:hover': {
-                border: '1px solid rgba(99, 102, 241, 0.5)',
-                background: 'rgba(99, 102, 241, 0.1)',
-              },
-            }}
+            sx={buttonStyles.ghost}
           >
             Return Home
           </Button>
@@ -260,7 +238,7 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', ...flexStyles.gap.md }}>
           {form.fields.map((field) => (
             <Box key={field.id || field.order}>
               <Typography
@@ -425,15 +403,9 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
             fullWidth
             disabled={isSubmitting || form.fields.length === 0}
             sx={{
-              fontWeight: 600,
               fontSize: '1rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
               py: 1.5,
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-              },
+              ...buttonStyles.primary,
               '&:disabled': {
                 background: 'rgba(255, 255, 255, 0.05)',
                 color: '#64748b',
