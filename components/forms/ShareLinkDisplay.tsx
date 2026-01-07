@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Box, TextField, Button, Typography, Alert, Chip, Stack } from '@mui/material'
+import { Box, TextField, Button, Typography, Chip, Stack, Snackbar } from '@mui/material'
 import { ContentCopy as CopyIcon } from '@mui/icons-material'
 import { flexStyles, buttonStyles } from '@/theme'
 
@@ -114,22 +114,24 @@ export function ShareLinkDisplay({ slug, shareUrl, formStatus }: ShareLinkDispla
             {copied ? 'Copied!' : 'Copy'}
           </Button>
         </Box>
-
-        {copied && (
-          <Alert
-            severity="success"
-            sx={{
-              mt: 1,
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: 2,
-              color: '#10b981',
-            }}
-          >
-            Link copied to clipboard!
-          </Alert>
-        )}
       </Stack>
+
+      <Snackbar
+        open={copied}
+        autoHideDuration={2000}
+        onClose={() => setCopied(false)}
+        message="Link copied to clipboard!"
+        sx={{
+          '& .MuiSnackbarContent-root': {
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95))',
+            color: '#ffffff',
+            fontWeight: 600,
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          },
+        }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </Box>
   )
 }
