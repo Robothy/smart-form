@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem } from '@mui/material'
+import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem, FormControlLabel, Switch } from '@mui/material'
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { FormField } from '@/components/ui/FormField'
 import { FormInput } from '@/components/ui/FormInput'
@@ -462,25 +462,58 @@ export function FormBuilder({
                         />
                       </FormField>
 
-                      <Box>
-                        <Button
-                          variant={field.required ? 'contained' : 'outlined'}
-                          onClick={() => handleFieldChange(index, { required: !field.required })}
-                          disabled={readonly}
-                          sx={{
-                            fontWeight: 600,
-                            ...(field.required ? buttonStyles.primary : {}),
-                            ...(field.required
-                              ? {}
-                              : {
-                                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                                  color: '#f1f5f9',
-                                  background: 'rgba(255, 255, 255, 0.02)',
-                                }),
-                          }}
-                        >
-                          {field.required ? 'Required' : 'Optional'}
-                        </Button>
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(255, 255, 255, 0.02)',
+                        }}
+                      >
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={field.required}
+                              onChange={() => handleFieldChange(index, { required: !field.required })}
+                              disabled={readonly}
+                              sx={{
+                                '& .MuiSwitch-switchBase': {
+                                  '&.Mui-checked': {
+                                    color: '#6366f1',
+                                    '& + .MuiSwitch-track': {
+                                      backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                                      opacity: 1,
+                                    },
+                                  },
+                                },
+                                '& .MuiSwitch-track': {
+                                  backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                                  borderRadius: '12px',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  opacity: 1,
+                                },
+                                '& .MuiSwitch-thumb': {
+                                  backgroundColor: '#ffffff',
+                                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
+                                  opacity: 0.5,
+                                },
+                              }}
+                            />
+                          }
+                          label={
+                            <Typography
+                              sx={{
+                                color: field.required ? '#10b981' : '#94a3b8',
+                                fontWeight: 500,
+                                fontSize: '0.875rem',
+                              }}
+                            >
+                              {field.required ? 'Required' : 'Optional'}
+                            </Typography>
+                          }
+                        />
                       </Box>
                     </Stack>
                   )}
