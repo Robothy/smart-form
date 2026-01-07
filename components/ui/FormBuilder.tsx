@@ -5,6 +5,7 @@ import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem 
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { FormField } from '@/components/ui/FormField'
 import { FormInput } from '@/components/ui/FormInput'
+import { layoutStyles, buttonStyles, flexStyles } from '@/theme'
 
 export type FormFieldType = 'text' | 'textarea' | 'date' | 'radio' | 'checkbox'
 
@@ -136,9 +137,7 @@ export function FormBuilder({
     <Paper
       sx={{
         p: 3,
-        background: 'rgba(26, 26, 36, 0.6)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        ...layoutStyles.glassSurface,
         borderRadius: 2,
       }}
       ref={containerRef}
@@ -310,7 +309,7 @@ export function FormBuilder({
                   {/* Edit Mode - Expanded */}
                   {isExpanded && (
                     <Stack spacing={2.5}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Box sx={{ ...flexStyles.between, mb: 1 }}>
                         <Typography
                           variant="subtitle2"
                           sx={{ color: '#6366f1', fontWeight: 600, fontSize: '0.875rem' }}
@@ -470,10 +469,9 @@ export function FormBuilder({
                           disabled={readonly}
                           sx={{
                             fontWeight: 600,
+                            ...(field.required ? buttonStyles.primary : {}),
                             ...(field.required
-                              ? {
-                                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                                }
+                              ? {}
                               : {
                                   border: '1px solid rgba(255, 255, 255, 0.1)',
                                   color: '#f1f5f9',
@@ -542,15 +540,9 @@ export function FormBuilder({
             disabled={isSaving || !localForm.title.trim()}
             fullWidth
             sx={{
-              fontWeight: 600,
               fontSize: '1rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
               py: 1.5,
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-              },
+              ...buttonStyles.primary,
               '&:disabled': {
                 background: 'rgba(255, 255, 255, 0.05)',
                 color: '#64748b',

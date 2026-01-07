@@ -18,6 +18,7 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import { FormCard } from '@/components/forms/FormCard'
 import Link from 'next/link'
+import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
 
 type Form = {
   id: string
@@ -102,19 +103,14 @@ export default function FormsPage() {
           left: 0,
           right: 0,
           zIndex: theme.zIndex.appBar - 1,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          background: 'rgba(10, 10, 15, 0.8)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+          ...layoutStyles.glassToolbar,
         })}
       >
         <Box
           sx={{
             maxWidth: 1200,
             margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
+            ...flexStyles.between,
             gap: 2,
             py: 1.5,
             px: { xs: 2, sm: 3 },
@@ -151,17 +147,8 @@ export default function FormsPage() {
                 startIcon={<AddIcon />}
                 sx={{
                   borderRadius: 999,
-                  px: 3,
-                  py: 1,
-                  fontWeight: 600,
                   fontSize: '0.875rem',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                  boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-                  },
+                  ...buttonStyles.primary,
                 }}
               >
                 Create New Form
@@ -229,7 +216,7 @@ export default function FormsPage() {
       )}
 
       {isLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <Box sx={{ ...flexStyles.center, py: 8 }}>
           <CircularProgress sx={{ color: '#6366f1' }} />
         </Box>
       ) : forms.length === 0 ? (

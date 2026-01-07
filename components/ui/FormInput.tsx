@@ -5,6 +5,7 @@ import { forwardRef } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { formStyles } from '@/theme'
 
 export interface FormInputProps extends Omit<MuiTextFieldProps, 'variant'> {
   label: string
@@ -22,6 +23,8 @@ export const FormInput = forwardRef<HTMLDivElement, FormInputProps>(
       return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
+            enableAccessibleFieldDOMStructure={false}
+            closeOnSelect
             slots={{
               textField: (params) => (
                 <MuiTextField
@@ -62,6 +65,7 @@ export const FormInput = forwardRef<HTMLDivElement, FormInputProps>(
                     },
                     '& .MuiOutlinedInput-input': {
                       color: '#f1f5f9',
+                      cursor: 'pointer',
                     },
                     ...props.sx,
                   }}
@@ -79,8 +83,20 @@ export const FormInput = forwardRef<HTMLDivElement, FormInputProps>(
               }
             }}
             slotProps={{
-              popper: {
+              desktopPaper: {
                 sx: {
+                  transition: 'none !important',
+                },
+              },
+              actionBar: {
+                actions: ['clear', 'today'],
+              },
+              popper: {
+                disablePortal: false,
+                sx: {
+                  '&.MuiPopper-root': {
+                    visibility: 'visible !important',
+                  },
                   '& .MuiPickersPopper-paper': {
                     background: 'rgba(26, 26, 36, 0.98)',
                     backdropFilter: 'blur(20px)',
@@ -167,15 +183,7 @@ export const FormInput = forwardRef<HTMLDivElement, FormInputProps>(
         aria-invalid={!!error}
         aria-describedby={error ? `${props.id || 'field'}-error` : helperText ? `${props.id || 'field'}-helper` : undefined}
         sx={{
-          '& .MuiOutlinedInput-root': {
-            backgroundColor: 'rgba(19, 19, 26, 0.8)',
-            '& input': {
-              color: '#f1f5f9',
-            },
-            '& textarea': {
-              color: '#f1f5f9',
-            },
-          },
+          ...formStyles.input,
           '& .MuiInputLabel-root': {
             color: '#94a3b8',
           },

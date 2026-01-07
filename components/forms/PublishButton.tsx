@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button as MuiButton, ButtonProps as MuiButtonProps, CircularProgress } from '@mui/material'
 import { forwardRef } from 'react'
+import { buttonStyles } from '@/theme'
 
 export interface PublishButtonProps {
   formId: string
@@ -74,10 +75,10 @@ export const PublishButton = forwardRef<HTMLButtonElement, PublishButtonProps>(
       <MuiButton
         ref={ref}
         variant="contained"
-        color="primary"
         disabled={isDisabled}
         onClick={handleClick}
         startIcon={isPublishing ? <CircularProgress size={16} /> : undefined}
+        sx={buttonStyles.success}
         {...rest}
       >
         {isPublishing ? 'Publishing...' : 'Publish'}

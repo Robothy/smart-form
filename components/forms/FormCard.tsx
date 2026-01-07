@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { DeleteConfirmationDialog } from './DeleteConfirmationDialog'
 import { useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
+import { flexStyles } from '@/theme'
 
 export interface FormCardProps {
   id: string
@@ -124,7 +125,7 @@ export function FormCard({
         onClick={onClick}
       >
         <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+          <Box sx={flexStyles.between}>
             <Typography
               variant="h6"
               component="h2"
@@ -140,7 +141,7 @@ export function FormCard({
             >
               {title}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+            <Box sx={{...flexStyles.gap.sm, flexShrink: 0}}>
               <FormStatusBadge status={status} />
               <IconButton
                 size="small"
@@ -179,7 +180,7 @@ export function FormCard({
             </Typography>
           )}
 
-          <Box sx={{ mt: 'auto', display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{mt: 'auto', ...flexStyles.gap.sm, flexWrap: 'wrap'}}>
             <Chip
               label={`${fieldsCount} field${fieldsCount !== 1 ? 's' : ''}`}
               size="small"
@@ -208,7 +209,7 @@ export function FormCard({
         </CardContent>
 
         <CardActions sx={{ pt: 0, px: 2.5, pb: 2.5 }}>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: '100%' }}>
+          <Box sx={{...flexStyles.gap.sm, alignItems: 'center', width: '100%'}}>
             <ShareIconButton
               slug={slug || null}
               shareUrl={shareableLink || null}

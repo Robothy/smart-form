@@ -16,6 +16,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { layoutStyles, flexStyles } from '@/theme'
 
 export interface FieldDefinition {
   id: string
@@ -71,7 +72,7 @@ export function SubmissionGrid({
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+      <Box sx={flexStyles.center} style={{ py: 8 }}>
         <CircularProgress sx={{ color: '#6366f1' }} />
       </Box>
     )
@@ -104,9 +105,7 @@ export function SubmissionGrid({
       sx={{
         width: '100%',
         overflow: 'hidden',
-        background: 'rgba(26, 26, 36, 0.6)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        ...layoutStyles.glassSurface,
         borderRadius: 2,
       }}
     >

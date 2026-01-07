@@ -649,3 +649,17 @@ input[type='checkbox']:hover {
 .MuiMenuItem-root.Mui-selected:hover {
   background-color: rgba(99, 102, 241, 0.3) !important;
 }
+
+/* ===================================
+   DATE PICKER POPPER FIXES
+   =================================== */
+
+/* Prevent popper from jumping during close animation */
+.MuiPopper-root {
+  transition: opacity 150ms ease-in-out !important;
+}
+
+/* Prevent visibility changes during close animation */
+.MuiPickersPopper-paper[role="dialog"] {
+  transition: opacity 150ms ease-in-out !important;
+}

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Box, TextField, Button, Typography, Alert, Chip, Stack } from '@mui/material'
 import { ContentCopy as CopyIcon } from '@mui/icons-material'
+import { flexStyles, buttonStyles } from '@/theme'
 
 export interface ShareLinkDisplayProps {
   slug: string | null
@@ -58,7 +59,7 @@ export function ShareLinkDisplay({ slug, shareUrl, formStatus }: ShareLinkDispla
       }}
     >
       <Stack spacing={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={flexStyles.between}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="h6" sx={{ color: '#f1f5f9', fontWeight: 700 }}>
               Shareable Link
@@ -108,15 +109,7 @@ export function ShareLinkDisplay({ slug, shareUrl, formStatus }: ShareLinkDispla
             variant="contained"
             onClick={handleCopy}
             startIcon={<CopyIcon />}
-            sx={{
-              minWidth: 100,
-              fontWeight: 600,
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              '&:hover': {
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-              },
-            }}
+            sx={buttonStyles.primary}
           >
             {copied ? 'Copied!' : 'Copy'}
           </Button>

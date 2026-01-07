@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { IconButton, Dialog, DialogContent, DialogTitle, Typography, Box, Chip, Button, Stack, ClickAwayListener } from '@mui/material'
 import { Share as ShareIcon, ContentCopy, OpenInNew, Close } from '@mui/icons-material'
+import { iconStyles, buttonStyles } from '@/theme'
 
 export interface ShareIconButtonProps {
   slug: string | null
@@ -67,15 +68,7 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
         onClick={handleClick}
         aria-label="Share form"
         size="small"
-        sx={{
-          ml: 1,
-          color: '#94a3b8',
-          transition: 'all 0.2s',
-          '&:hover': {
-            color: '#6366f1',
-            background: 'rgba(99, 102, 241, 0.1)',
-          },
-        }}
+        sx={{ ml: 1, ...iconStyles.primary }}
       >
         <ShareIcon fontSize="small" />
       </IconButton>
@@ -177,14 +170,7 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
               size="small"
               startIcon={<OpenInNew />}
               fullWidth
-              sx={{
-                fontWeight: 600,
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                '&:hover': {
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-                },
-              }}
+              sx={buttonStyles.primary}
             >
               Open
             </Button>

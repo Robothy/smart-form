@@ -28,6 +28,7 @@ import { ShareLinkDisplay } from '@/components/forms/ShareLinkDisplay'
 import { CopyFormButton } from '@/components/forms/CopyFormButton'
 import { DeleteConfirmationDialog } from '@/components/forms/DeleteConfirmationDialog'
 import type { FormData, FormFieldData } from '@/components/ui/FormBuilder'
+import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
 
 /**
  * Form view page - view published form details and submissions
@@ -193,26 +194,13 @@ export default function ViewFormPage() {
     <>
       {/* Toolbar */}
       <Box
-        sx={(theme) => ({
-          position: 'fixed',
-          top: { xs: 56, sm: 64 },
-          left: 0,
-          right: 0,
-          zIndex: theme.zIndex.appBar - 1,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          background: 'rgba(10, 10, 15, 0.85)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
-        })}
+        sx={{ ...layoutStyles.glassToolbar, position: 'fixed', top: { xs: 56, sm: 64 }, left: 0, right: 0, zIndex: (theme) => theme.zIndex.appBar - 1 }}
       >
         <Box
           sx={{
             maxWidth: 1200,
             margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
+            ...flexStyles.gap.md,
             py: 1.5,
             px: { xs: 2, sm: 3 },
           }}
@@ -247,19 +235,7 @@ export default function ViewFormPage() {
               variant="outlined"
               startIcon={<ArrowBackIcon />}
               onClick={() => router.push('/forms')}
-              sx={{
-                borderRadius: 999,
-                px: 2.5,
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#f1f5f9',
-                background: 'rgba(255, 255, 255, 0.02)',
-                '&:hover': {
-                  border: '1px solid rgba(99, 102, 241, 0.5)',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                },
-              }}
+              sx={{ ...buttonStyles.ghost, borderRadius: 999, px: 2.5, fontSize: '0.875rem' }}
             >
               Back
             </Button>
@@ -268,19 +244,7 @@ export default function ViewFormPage() {
                 variant="outlined"
                 startIcon={copied ? <CopyIcon /> : <ShareIcon />}
                 onClick={handleCopyLink}
-                sx={{
-                  borderRadius: 999,
-                  px: 2.5,
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#f1f5f9',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  '&:hover': {
-                    border: '1px solid rgba(99, 102, 241, 0.5)',
-                    background: 'rgba(99, 102, 241, 0.1)',
-                  },
-                }}
+                sx={{ ...buttonStyles.ghost, borderRadius: 999, px: 2.5, fontSize: '0.875rem' }}
               >
                 {copied ? 'Copied!' : 'Copy Link'}
               </Button>
@@ -292,19 +256,7 @@ export default function ViewFormPage() {
               variant="outlined"
               startIcon={<DeleteIcon />}
               onClick={handleDeleteClick}
-              sx={{
-                borderRadius: 999,
-                px: 2.5,
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                color: '#ef4444',
-                background: 'rgba(239, 68, 68, 0.05)',
-                '&:hover': {
-                  border: '1px solid rgba(239, 68, 68, 0.5)',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                },
-              }}
+              sx={{ ...buttonStyles.danger, borderRadius: 999, px: 2.5, fontSize: '0.875rem' }}
             >
               Delete
             </Button>
@@ -313,18 +265,7 @@ export default function ViewFormPage() {
                 variant="contained"
                 startIcon={<VisibilityIcon />}
                 onClick={() => router.push(`/forms/${formId}/submissions`)}
-                sx={{
-                  borderRadius: 999,
-                  px: 3,
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                  boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-                  },
-                }}
+                sx={{ ...buttonStyles.primary, borderRadius: 999 }}
               >
                 View Submissions
               </Button>
@@ -389,9 +330,7 @@ export default function ViewFormPage() {
           <Paper
             sx={{
               p: 4,
-              background: 'rgba(26, 26, 36, 0.6)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              ...layoutStyles.glassSurface,
               borderRadius: 2,
             }}
           >
@@ -420,7 +359,7 @@ export default function ViewFormPage() {
                       {index + 1}. {field.label}
                       {field.required && <span style={{ color: '#10b981' }}> *</span>}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mt: 1.5 }}>
+                    <Box sx={{ ...flexStyles.gap.sm, mt: 1.5 }}>
                       <Chip
                         label={field.type}
                         size="small"
@@ -473,9 +412,7 @@ export default function ViewFormPage() {
             <Paper
               sx={{
                 p: 4,
-                background: 'rgba(26, 26, 36, 0.6)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                ...layoutStyles.glassSurface,
                 borderRadius: 2,
               }}
             >
@@ -505,15 +442,8 @@ export default function ViewFormPage() {
                   onClick={handlePublish}
                   disabled={isPublishing || !form.fields || form.fields.length === 0}
                   sx={{
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                    ...buttonStyles.success,
                     py: 1.5,
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)',
-                    },
                     '&:disabled': {
                       background: 'rgba(255, 255, 255, 0.05)',
                       color: '#64748b',
@@ -534,17 +464,7 @@ export default function ViewFormPage() {
               size="large"
               fullWidth
               onClick={() => router.push(`/forms/${formId}/edit`)}
-              sx={{
-                fontWeight: 600,
-                fontSize: '1rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)',
-                py: 1.5,
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 8px 25px rgba(99, 102, 241, 0.5)',
-                },
-              }}
+              sx={{ ...buttonStyles.primary, py: 1.5 }}
             >
               Edit Form
             </Button>
