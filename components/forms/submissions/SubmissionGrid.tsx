@@ -31,7 +31,7 @@ export interface Submission {
   submittedAt: string | Date
 }
 
-interface SubmissionGridProps {
+export interface SubmissionGridProps {
   fields: FieldDefinition[]
   submissions: Submission[]
   isLoading?: boolean
@@ -72,7 +72,7 @@ export function SubmissionGrid({
 
   if (isLoading) {
     return (
-      <Box sx={flexStyles.center} style={{ py: 8 }}>
+      <Box sx={flexStyles.center} py={8}>
         <CircularProgress sx={{ color: '#6366f1' }} />
       </Box>
     )

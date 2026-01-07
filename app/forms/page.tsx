@@ -16,8 +16,8 @@ import {
   Stack,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import { FormCard } from '@/components/forms/FormCard'
-import { PageToolbar } from '@/components/forms/PageToolbar'
+import { FormCard } from '@/components/forms/list/FormCard'
+import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
 

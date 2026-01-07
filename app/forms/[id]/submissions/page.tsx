@@ -10,8 +10,8 @@ import {
   Alert,
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/SubmissionGrid'
-import { PageToolbar } from '@/components/forms/PageToolbar'
+import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/submissions/SubmissionGrid'
+import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { flexStyles, buttonStyles } from '@/theme'
 
