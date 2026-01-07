@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { IconButton, Dialog, DialogContent, DialogTitle, Typography, Box, Chip, Button, Stack, ClickAwayListener } from '@mui/material'
+import { IconButton, Dialog, DialogContent, DialogTitle, Typography, Box, Button, Stack, Snackbar } from '@mui/material'
 import { Share as ShareIcon, ContentCopy, OpenInNew, Close } from '@mui/icons-material'
 import { iconStyles, buttonStyles } from '@/theme'
 
@@ -128,22 +128,6 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
             {shareUrl}
           </Box>
 
-          {copied && (
-            <Box sx={{ mb: 2 }}>
-              <Chip
-                label="Copied!"
-                size="small"
-                sx={{
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  background: 'rgba(16, 185, 129, 0.2)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  color: '#10b981',
-                }}
-              />
-            </Box>
-          )}
-
           <Stack direction="row" spacing={1}>
             <Button
               onClick={handleCopy}
@@ -177,6 +161,23 @@ export function ShareIconButton({ slug, shareUrl, formStatus, onCopyClick }: Sha
           </Stack>
         </DialogContent>
       </Dialog>
+
+      <Snackbar
+        open={copied}
+        autoHideDuration={2000}
+        onClose={() => setCopied(false)}
+        message="Link copied to clipboard!"
+        sx={{
+          '& .MuiSnackbarContent-root': {
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95))',
+            color: '#ffffff',
+            fontWeight: 600,
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          },
+        }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </>
   )
 }

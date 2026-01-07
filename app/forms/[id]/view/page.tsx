@@ -27,6 +27,7 @@ import { FormStatusBadge } from '@/components/forms/FormStatusBadge'
 import { ShareLinkDisplay } from '@/components/forms/ShareLinkDisplay'
 import { CopyFormButton } from '@/components/forms/CopyFormButton'
 import { DeleteConfirmationDialog } from '@/components/forms/DeleteConfirmationDialog'
+import { PageToolbar } from '@/components/forms/PageToolbar'
 import type { FormData, FormFieldData } from '@/components/ui/FormBuilder'
 import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
 
@@ -193,44 +194,11 @@ export default function ViewFormPage() {
   return (
     <>
       {/* Toolbar */}
-      <Box
-        sx={{ ...layoutStyles.glassToolbar, position: 'fixed', top: { xs: 56, sm: 64 }, left: 0, right: 0, zIndex: (theme) => theme.zIndex.appBar - 1 }}
-      >
-        <Box
-          sx={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            ...flexStyles.gap.md,
-            py: 1.5,
-            px: { xs: 2, sm: 3 },
-          }}
-        >
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-              variant="subtitle1"
-              fontWeight={700}
-              fontSize="1.125rem"
-              letterSpacing="-0.02em"
-              noWrap
-              sx={{ color: '#f1f5f9' }}
-            >
-              {form.title}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#94a3b8',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
-              }}
-              noWrap
-            >
-              {isPublished ? 'Published' : 'Draft'} • {form.fields?.length || 0} field
-              {(form.fields?.length || 0) !== 1 ? 's' : ''}
-            </Typography>
-          </Box>
-
-          <Stack direction="row" spacing={1.5} alignItems="center">
+      <PageToolbar
+        title={form.title}
+        subtitle={`${isPublished ? 'Published' : 'Draft'} • ${form.fields?.length || 0} field${(form.fields?.length || 0) !== 1 ? 's' : ''}`}
+        actions={
+          <>
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
@@ -270,11 +238,11 @@ export default function ViewFormPage() {
                 View Submissions
               </Button>
             )}
-          </Stack>
-        </Box>
-      </Box>
+          </>
+        }
+      />
 
-      <Container maxWidth="md" sx={{ py: 4, mt: 18 }}>
+      <Container maxWidth="md" sx={{ py: 4, mt: 10 }}>
         <Stack spacing={3}>
           {/* Share Link Display at the top - only for published forms */}
           <ShareLinkDisplay

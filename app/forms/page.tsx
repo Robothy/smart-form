@@ -17,6 +17,7 @@ import {
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { FormCard } from '@/components/forms/FormCard'
+import { PageToolbar } from '@/components/forms/PageToolbar'
 import Link from 'next/link'
 import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
 
@@ -96,69 +97,27 @@ export default function FormsPage() {
   return (
     <>
       {/* Toolbar */}
-      <Box
-        sx={(theme) => ({
-          position: 'fixed',
-          top: { xs: 56, sm: 64 },
-          left: 0,
-          right: 0,
-          zIndex: theme.zIndex.appBar - 1,
-          ...layoutStyles.glassToolbar,
-        })}
-      >
-        <Box
-          sx={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            ...flexStyles.between,
-            gap: 2,
-            py: 1.5,
-            px: { xs: 2, sm: 3 },
-          }}
-        >
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-              variant="subtitle1"
-              fontWeight={700}
-              fontSize="1.125rem"
-              letterSpacing="-0.02em"
-              noWrap
-              sx={{ color: '#f1f5f9' }}
-            >
-              My Forms
-            </Typography>
-            <Typography
-              variant="caption"
+      <PageToolbar
+        title="My Forms"
+        subtitle={`${counts.all} form${counts.all !== 1 ? 's' : ''} total`}
+        actions={
+          <Link href="/forms/new" style={{ textDecoration: 'none' }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
               sx={{
-                color: '#94a3b8',
-                fontSize: '0.8125rem',
-                fontWeight: 500,
+                borderRadius: 999,
+                fontSize: '0.875rem',
+                ...buttonStyles.primary,
               }}
-              noWrap
             >
-              {counts.all} form{counts.all !== 1 ? 's' : ''} total
-            </Typography>
-          </Box>
+              Create New Form
+            </Button>
+          </Link>
+        }
+      />
 
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Link href="/forms/new" style={{ textDecoration: 'none' }}>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{
-                  borderRadius: 999,
-                  fontSize: '0.875rem',
-                  ...buttonStyles.primary,
-                }}
-              >
-                Create New Form
-              </Button>
-            </Link>
-          </Stack>
-        </Box>
-      </Box>
-
-      <Container maxWidth="lg" sx={{ py: 4, mt: 18 }}>
+      <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
       <Box sx={{ mb: 4 }}>
         <ToggleButtonGroup
           value={filter}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { Container, Typography, Box, Alert, CircularProgress } from '@mui/material'
+import { Container, Typography, Box, Alert, CircularProgress, Snackbar } from '@mui/material'
 import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
 import { Button } from '@/components/ui/Button'
 import { EditToolbar } from '@/components/forms/EditToolbar'
@@ -94,7 +94,7 @@ export default function EditFormPage() {
       setIsSuccess(true)
       setTimeout(() => {
         setIsSuccess(false)
-      }, 3000)
+      }, 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update form')
     } finally {
@@ -178,7 +178,7 @@ export default function EditFormPage() {
         />
       )}
 
-      <Container maxWidth="md" sx={{ py: 4, mt: isPublished ? 0 : 18 }}>
+      <Container maxWidth="md" sx={{ py: 4, mt: isPublished ? 0 : 10 }}>
         {isPublished && (
           <Box sx={{ mb: 4, ...flexStyles.between }}>
             <Typography variant="h4">
@@ -212,22 +212,6 @@ export default function EditFormPage() {
           </Alert>
         )}
 
-        {isSuccess && (
-          <Alert
-            severity="success"
-            sx={{
-              mb: 4,
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: 2,
-              color: '#10b981',
-            }}
-            onClose={() => setIsSuccess(false)}
-          >
-            Form updated successfully!
-          </Alert>
-        )}
-
         <FormBuilder
           form={form}
           onSave={handleSave}
@@ -237,6 +221,23 @@ export default function EditFormPage() {
           showHeading={false}
         />
       </Container>
+
+      <Snackbar
+        open={isSuccess}
+        autoHideDuration={2000}
+        onClose={() => setIsSuccess(false)}
+        message="Form updated successfully!"
+        sx={{
+          '& .MuiSnackbarContent-root': {
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95))',
+            color: '#ffffff',
+            fontWeight: 600,
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          },
+        }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </>
   )
 }

@@ -9,9 +9,11 @@ import {
   Button,
   Alert,
 } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/SubmissionGrid'
+import { PageToolbar } from '@/components/forms/PageToolbar'
 import Link from 'next/link'
-import { flexStyles } from '@/theme'
+import { flexStyles, buttonStyles } from '@/theme'
 
 /**
  * Form submissions page - view all submissions for a published form
@@ -23,6 +25,7 @@ export default function SubmissionsPage() {
 
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [fields, setFields] = useState<FieldDefinition[]>([])
+  const [formTitle, setFormTitle] = useState<string>('Form')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(0)
@@ -48,6 +51,7 @@ export default function SubmissionsPage() {
             required: f.required === 1 || f.required === true,
           }))
           setFields(fieldData)
+          setFormTitle(formResult.data.title || 'Form')
         }
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -116,55 +120,25 @@ export default function SubmissionsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box
-        sx={{
-          mb: 4,
-          ...flexStyles.between,
-        }}
-      >
-        <Typography variant="h4" sx={{ color: '#f1f5f9', fontWeight: 700 }}>
-          Submissions
-        </Typography>
-        <Box sx={{ ...flexStyles.gap.sm }}>
-          <Link href={`/forms/${formId}/view`}>
+    <>
+      <PageToolbar
+        title="Submissions"
+        subtitle={`${totalCount} submission${totalCount !== 1 ? 's' : ''} • ${formTitle}`}
+        actions={
+          <Link href={`/forms/${formId}/view`} style={{ textDecoration: 'none' }}>
             <Button
               variant="outlined"
-              sx={{
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#f1f5f9',
-                background: 'rgba(255, 255, 255, 0.02)',
-                fontWeight: 600,
-                '&:hover': {
-                  border: '1px solid rgba(99, 102, 241, 0.5)',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                },
-              }}
+              startIcon={<ArrowBackIcon />}
+              sx={{ ...buttonStyles.ghost, borderRadius: 999, px: 2.5, fontSize: '0.875rem' }}
             >
               Back to Form
             </Button>
           </Link>
-          <Link href="/forms">
-            <Button
-              variant="outlined"
-              sx={{
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#f1f5f9',
-                background: 'rgba(255, 255, 255, 0.02)',
-                fontWeight: 600,
-                '&:hover': {
-                  border: '1px solid rgba(99, 102, 241, 0.5)',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                },
-              }}
-            >
-              All Forms
-            </Button>
-          </Link>
-        </Box>
-      </Box>
+        }
+      />
 
-      {error && (
+      <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
+        {error && (
         <Alert
           severity="error"
           sx={{
@@ -190,6 +164,7 @@ export default function SubmissionsPage() {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
       />
-    </Container>
+      </Container>
+    </>
   )
 }
