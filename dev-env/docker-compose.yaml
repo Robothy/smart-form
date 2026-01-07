@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  dev:
+    build:
+      context: .
+    container_name: simple-form-dev
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    environment:
+      - USER=dev
+      - DISABLE_ERROR_REPORTING=1
+      - DISABLE_TELEMETRY=1
+      - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+      - MCP_TIMEOUT=60000
+      - ANTHROPIC_API_KEY=${ZHIPU_API_KEY}
+      - ANTHROPIC_AUTH_TOKEN=${ZHIPU_API_KEY}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL}
+      - ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL}
+      - ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL}
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+    command: ["/bin/bash"]
