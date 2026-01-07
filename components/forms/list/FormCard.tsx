@@ -2,10 +2,10 @@
 
 import { Card, CardContent, CardActions, Typography, Chip, Box, IconButton, Alert, CircularProgress } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import { FormStatusBadge } from './FormStatusBadge'
-import { ShareIconButton } from './ShareIconButton'
+import { FormStatusBadge } from '../view/FormStatusBadge'
+import { ShareIconButton } from '../view/ShareIconButton'
 import { Button } from '@/components/ui/Button'
-import { DeleteConfirmationDialog } from './DeleteConfirmationDialog'
+import { DeleteConfirmationDialog } from '../view/DeleteConfirmationDialog'
 import { useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { flexStyles } from '@/theme'

@@ -5,10 +5,10 @@ import PublishIcon from '@mui/icons-material/Publish'
 import SaveIcon from '@mui/icons-material/Save'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import ReplayIcon from '@mui/icons-material/Replay'
-import { PageToolbar } from './PageToolbar'
+import { PageToolbar } from '../list/PageToolbar'
 import { buttonStyles } from '@/theme'
 
-interface EditToolbarProps {
+export interface EditToolbarProps {
   title: string
   subtitle?: string
   onSave: () => void

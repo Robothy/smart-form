@@ -15,5 +15,8 @@
     "Welcome to Acme Corp! Review our code guidelines at docs.acme.com",
     "Reminder: Code reviews required for all PRs",
     "New security policy in effect"
-  ]
+  ],
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true
+  }
 }

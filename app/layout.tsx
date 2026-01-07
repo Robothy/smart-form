@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { NavBar } from '@/components/forms/NavBar'
+import { NavBar } from '@/components/common/NavBar'
 
 export const metadata: Metadata = {
   title: 'FormForge - Premium Form Builder',

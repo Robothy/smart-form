@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { buttonStyles } from '@/theme'
 
-interface DeleteConfirmationDialogProps {
+export interface DeleteConfirmationDialogProps {
   open: boolean
   formTitle: string
   submissionsCount: number
@@ -37,7 +37,7 @@ export function DeleteConfirmationDialog({
       <DialogTitle id="delete-dialog-title">Delete Form?</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete <strong>"{formTitle}"</strong>?
+          Are you sure you want to delete <strong>&quot;{formTitle}&quot;</strong>?
           This will permanently remove the form, all {submissionsCount} field{submissionsCount !== 1 ? 's' : ''},
           and {submissionsCount} submission{submissionsCount !== 1 ? 's' : ''}. This action cannot be undone.
         </DialogContentText>
