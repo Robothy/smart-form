@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json(errorResponse('VALIDATION_ERROR', 'Slug is required'), { status: 400 })
     }
 
-    const db = getDb()
+    const db = await getDb()
 
     if (!db) {
       return NextResponse.json(errorResponse('INTERNAL_ERROR', 'Database not available'), { status: 500 })

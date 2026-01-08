@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id } = await params
 
-    const db = getDb()
+    const db = await getDb()
     const [form] = await db
       .select()
       .from(schema.forms)
@@ -66,7 +66,7 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists
     const [existingForm] = await db
@@ -185,7 +185,7 @@ export async function DELETE(
   try {
     const { id } = await params
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists
     const [existingForm] = await db

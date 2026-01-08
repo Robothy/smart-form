@@ -14,7 +14,7 @@ type RouteContext = {
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    const db = getDb()
+    const db = await getDb()
 
     // Get the source form
     const sourceFormList = await db

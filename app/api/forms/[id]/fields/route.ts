@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id: formId } = await params
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists
     const [existingForm] = await db
@@ -64,7 +64,7 @@ export async function POST(
     const { id: formId } = await params
     const body = await request.json()
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists
     const [existingForm] = await db

@@ -10,7 +10,7 @@ export default async function SharePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params
 
   try {
-    const db = getDb()
+    const db = await getDb()
 
     if (!db) {
       console.error('Database not available')
