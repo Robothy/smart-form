@@ -1,6 +1,6 @@
 'use client'
 
-import { FormFiller } from '@/components/ui/FormFiller'
+import { FormFiller } from '@/components/forms/fill'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Container, Box, Button } from '@mui/material'
 import Link from 'next/link'
