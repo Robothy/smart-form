@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Container, Typography, Box, Alert, CircularProgress, Button, Stack, Link as MuiLink } from '@mui/material'
+import { Container, Typography, Box, Alert, CircularProgress, Button } from '@mui/material'
 import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
 import SaveIcon from '@mui/icons-material/Save'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
+import { PageToolbar } from '@/components/forms/list/PageToolbar'
 
 /**
  * Form creation page - create a new form with fields
@@ -73,63 +74,46 @@ export default function NewFormPage() {
   return (
     <>
       {/* Toolbar */}
-      <Box
-        sx={(theme) => ({
-          position: 'fixed',
-          top: { xs: 56, sm: 64 },
-          left: 0,
-          right: 0,
-          zIndex: theme.zIndex.appBar - 1,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(6px)',
-          bgcolor: theme.palette.background.paper,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
-        })}
-      >
-        <Box
-          sx={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            py: 1.25,
-            px: { xs: 2, sm: 3 },
-          }}
-        >
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="subtitle1" fontWeight={600} noWrap>
-              Create New Form
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              Draft • {form.fields.length} field{form.fields.length !== 1 ? 's' : ''}
-            </Typography>
-          </Box>
-
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <MuiLink href="/forms" component={Link} underline="none">
+      <PageToolbar
+        title="Create New Form"
+        subtitle={`Draft • ${form.fields.length} field${form.fields.length !== 1 ? 's' : ''}`}
+        actions={
+          <>
+            <Link href="/forms" style={{ textDecoration: 'none' }}>
               <Button
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
-                sx={{ borderRadius: 999, px: 2.5 }}
+                sx={{
+                  borderRadius: 999,
+                  px: 2.5,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#f1f5f9',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  '&:hover': {
+                    border: '1px solid rgba(99, 102, 241, 0.5)',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                  },
+                }}
               >
                 Cancel
               </Button>
-            </MuiLink>
+            </Link>
             <Button
               variant="contained"
               startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}
               onClick={() => handleSave({ title: form.title, description: form.description, fields: form.fields })}
               disabled={isLoading || !form.title.trim()}
-              sx={{ ...buttonStyles.primary, borderRadius: 999, px: 3 }}
+              sx={{ ...buttonStyles.primary, borderRadius: 999 }}
             >
               {isLoading ? 'Creating…' : 'Create Form'}
             </Button>
-          </Stack>
-        </Box>
-      </Box>
+          </>
+        }
+      />
 
-      <Container maxWidth="md" sx={{ py: 4, mt: 18 }}>
+      <Container maxWidth="md" sx={{ py: 4, mt: 10 }}>
 
       {error && (
         <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
