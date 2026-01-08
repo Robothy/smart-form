@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Container, Typography, Box, Alert, CircularProgress, Button, Stack } from '@mui/material'
+import { Container, Typography, Box, Alert, CircularProgress, Button, Stack, Link as MuiLink } from '@mui/material'
 import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
 import SaveIcon from '@mui/icons-material/Save'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -107,16 +107,15 @@ export default function NewFormPage() {
           </Box>
 
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Link href="/forms" passHref legacyBehavior>
+            <MuiLink href="/forms" component={Link} underline="none">
               <Button
-                component="a"
                 variant="outlined"
                 startIcon={<ArrowBackIcon />}
                 sx={{ borderRadius: 999, px: 2.5 }}
               >
                 Cancel
               </Button>
-            </Link>
+            </MuiLink>
             <Button
               variant="contained"
               startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <SaveIcon />}

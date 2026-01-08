@@ -14,7 +14,7 @@ export async function PUT(
     const { id: formId, fieldId } = await params
     const body = await request.json()
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists and is draft
     const [existingForm] = await db
@@ -103,7 +103,7 @@ export async function DELETE(
   try {
     const { id: formId, fieldId } = await params
 
-    const db = getDb()
+    const db = await getDb()
 
     // Check if form exists and is draft
     const [existingForm] = await db

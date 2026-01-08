@@ -19,7 +19,7 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '20', 10)
 
-    const db = getDb()
+    const db = await getDb()
 
     // Verify form exists
     const formResult = await db.select().from(forms).where(eq(forms.id, id)).limit(1)
@@ -90,7 +90,7 @@ export async function POST(
   try {
     const { id } = await params
 
-    const db = getDb()
+    const db = await getDb()
 
     // Verify form exists and is published
     const formResult = await db.select().from(forms).where(eq(forms.id, id)).limit(1)

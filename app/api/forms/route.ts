@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const origin = request.nextUrl.origin
 
-    const db = getDb()
+    const db = await getDb()
     let query = db.select().from(schema.forms).orderBy(schema.forms.createdAt)
 
     // Filter by status if provided
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const db = getDb()
+    const db = await getDb()
     const newForm: NewForm = {
       title,
       description: description || null,

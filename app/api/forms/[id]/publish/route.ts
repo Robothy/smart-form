@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
 
-    const db = getDb()
+    const db = await getDb()
 
     // Get form with field count
     const formList = await db
