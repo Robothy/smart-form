@@ -23,12 +23,21 @@ export default function EditFormPage() {
   const params = useParams()
   const formId = params.id as string
 
+  // Local state to track form changes from FormBuilder
+  const [form, setForm] = useState<FormData | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
   // Custom hooks
-  const { form, isLoading, error: loadError } = useFormLoader(formId)
+  const { form: loadedForm, isLoading, error: loadError } = useFormLoader(formId)
   const { save, isSaving, isSuccess, error: saveError, clearSuccess, clearError: clearSaveError } = useFormSave(formId)
   const { publish, isPublishing, error: publishError, clearError: clearPublishError } = useFormPublish(formId, form)
 
-  const [error, setError] = useState<string | null>(null)
+  // Update local form state when loadedForm changes
+  useEffect(() => {
+    if (loadedForm) {
+      setForm(loadedForm)
+    }
+  }, [loadedForm])
 
   // Redirect to view page if form is already published
   useEffect(() => {
@@ -49,9 +58,9 @@ export default function EditFormPage() {
     await save(data)
   }
 
-  const handleUpdate = (_updated: FormData) => {
-    // Form state is managed by useFormLoader hook
-    // This is a placeholder for future state updates if needed
+  const handleUpdate = (updated: FormData) => {
+    // Sync the form state from FormBuilder to parent
+    setForm(updated)
   }
 
   const handlePublish = async () => {

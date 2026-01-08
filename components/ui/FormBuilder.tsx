@@ -1,23 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem, FormControlLabel, Switch } from '@mui/material'
+import { Box, Button, Paper, Typography, TextField, Stack, IconButton } from '@mui/material'
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
 import { FormField } from '@/components/ui/FormField'
-import { FormInput } from '@/components/ui/FormInput'
+import { FieldEditor } from '@/components/ui/fields'
+import type { FormFieldData, FormFieldType } from '@/lib/field-types'
 import { layoutStyles, buttonStyles, flexStyles } from '@/theme'
 
-export type FormFieldType = 'text' | 'textarea' | 'date' | 'radio' | 'checkbox'
-
-export interface FormFieldData {
-  id?: string
-  type: FormFieldType
-  label: string
-  placeholder?: string
-  required: boolean
-  options?: { label: string; value: string }[]
-  order: number
-}
+export type { FormFieldData } from '@/lib/field-types'
 
 export interface FormData {
   id?: string
@@ -82,14 +73,6 @@ export function FormBuilder({
   const handleFieldChange = (index: number, field: Partial<FormFieldData>) => {
     const updatedFields = [...localForm.fields]
     updatedFields[index] = { ...updatedFields[index], ...field }
-    const updated = { ...localForm, fields: updatedFields }
-    setLocalForm(updated)
-    onUpdate?.(updated)
-  }
-
-  const handleFieldTypeChange = (index: number, newType: FormFieldType) => {
-    const updatedFields = [...localForm.fields]
-    updatedFields[index] = { ...updatedFields[index], type: newType }
     const updated = { ...localForm, fields: updatedFields }
     setLocalForm(updated)
     onUpdate?.(updated)
@@ -332,189 +315,12 @@ export function FormBuilder({
                         </Button>
                       </Box>
 
-                      <FormField label="Field Label" required>
-                        <TextField
-                          fullWidth
-                          value={field.label}
-                          onChange={(e) => handleFieldChange(index, { label: e.target.value })}
-                          disabled={readonly}
-                          placeholder="Field label"
-                          autoFocus
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              background: 'rgba(19, 19, 26, 0.8)',
-                              '& input': {
-                                color: '#f1f5f9',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: '#94a3b8',
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.15)',
-                            },
-                          }}
-                        />
-                      </FormField>
-
-                      <FormField label="Field Type">
-                        <TextField
-                          fullWidth
-                          select
-                          value={field.type}
-                          onChange={(e) => {
-                            const newType = e.target.value as FormFieldType
-                            handleFieldTypeChange(index, newType)
-                          }}
-                          disabled={readonly}
-                          SelectProps={{
-                            MenuProps: {
-                              disableScrollLock: true,
-                              PaperProps: {
-                                sx: {
-                                  background: 'rgba(26, 26, 36, 0.98)',
-                                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                                  backdropFilter: 'blur(20px)',
-                                  borderRadius: '0.75rem',
-                                  mt: 1,
-                                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
-                                },
-                              },
-                              sx: {
-                                '& .MuiMenu-list': {
-                                  py: 0.5,
-                                  padding: '0.5rem',
-                                },
-                              },
-                            },
-                          }}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              background: 'rgba(19, 19, 26, 0.8)',
-                              color: '#f1f5f9',
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                              },
-                              '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'rgba(255, 255, 255, 0.15)',
-                              },
-                            },
-                            '& .MuiSelect-icon': {
-                              color: '#94a3b8',
-                            },
-                          }}
-                        >
-                          {['text', 'textarea', 'date', 'radio', 'checkbox'].map((type) => (
-                            <MenuItem
-                              key={type}
-                              value={type}
-                              sx={{
-                                color: '#f1f5f9',
-                                borderRadius: '0.375rem',
-                                my: 0.25,
-                                mx: 0.5,
-                                py: 0.75,
-                                px: 1,
-                                '&:hover': {
-                                  background: 'rgba(99, 102, 241, 0.15)',
-                                },
-                                '&.Mui-selected': {
-                                  background: 'rgba(99, 102, 241, 0.25)',
-                                  '&:hover': {
-                                    background: 'rgba(99, 102, 241, 0.3)',
-                                  },
-                                },
-                              }}
-                            >
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                      </FormField>
-
-                      <FormField label="Placeholder">
-                        <TextField
-                          fullWidth
-                          value={field.placeholder || ''}
-                          onChange={(e) => handleFieldChange(index, { placeholder: e.target.value })}
-                          disabled={readonly}
-                          placeholder="Placeholder text"
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              background: 'rgba(19, 19, 26, 0.8)',
-                              '& input': {
-                                color: '#f1f5f9',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: '#94a3b8',
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.15)',
-                            },
-                          }}
-                        />
-                      </FormField>
-
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                        }}
-                      >
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={field.required}
-                              onChange={() => handleFieldChange(index, { required: !field.required })}
-                              disabled={readonly}
-                              sx={{
-                                '& .MuiSwitch-switchBase': {
-                                  '&.Mui-checked': {
-                                    color: '#6366f1',
-                                    '& + .MuiSwitch-track': {
-                                      backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                                      opacity: 1,
-                                    },
-                                  },
-                                },
-                                '& .MuiSwitch-track': {
-                                  backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                                  borderRadius: '12px',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                                  opacity: 1,
-                                },
-                                '& .MuiSwitch-thumb': {
-                                  backgroundColor: '#ffffff',
-                                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            />
-                          }
-                          label={
-                            <Typography
-                              sx={{
-                                color: field.required ? '#10b981' : '#94a3b8',
-                                fontWeight: 500,
-                                fontSize: '0.875rem',
-                              }}
-                            >
-                              {field.required ? 'Required' : 'Optional'}
-                            </Typography>
-                          }
-                        />
-                      </Box>
+                      {/* Field Editor - handles all field types */}
+                      <FieldEditor
+                        field={field}
+                        onChange={(updates) => handleFieldChange(index, updates)}
+                        readonly={readonly}
+                      />
                     </Stack>
                   )}
                 </Box>

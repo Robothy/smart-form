@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Container, Typography, Box, Alert, CircularProgress, Button } from '@mui/material'
-import { FormInput } from '@/components/ui/FormInput'
-import type { FormFieldData } from '@/components/ui/FormBuilder'
+import { FieldRenderer } from '@/components/ui/fields'
+import type { FormFieldData, FieldValue } from '@/lib/field-types'
 import { buttonStyles, flexStyles } from '@/theme'
+
+export type { FormFieldData } from '@/lib/field-types'
 
 export interface FormFillerProps {
   formId?: string
@@ -238,148 +240,15 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', ...flexStyles.gap.md }}>
+        <Box sx={{ flexDirection: 'column', ...flexStyles.gap.md }}>
           {form.fields.map((field) => (
-            <Box key={field.id || field.order}>
-              <Typography
-                variant="subtitle1"
-                gutterBottom
-                sx={{ fontWeight: 500, color: '#f1f5f9' }}
-                id={`${field.id!}-label`}
-              >
-                {field.label}
-                {field.required && <span style={{ color: '#10b981' }}> *</span>}
-              </Typography>
-
-              {field.type === 'text' && (
-                <FormInput
-                  value={values[field.id!] as string || ''}
-                  onChange={(e) => handleValueChange(field.id!, e.target.value)}
-                  placeholder={field.placeholder}
-                  error={fieldErrors[field.id!]}
-                  id={field.id!}
-                  aria-labelledby={`${field.id!}-label`}
-                  aria-required={field.required}
-                />
-              )}
-
-              {field.type === 'textarea' && (
-                <FormInput
-                  multiline
-                  rows={4}
-                  value={values[field.id!] as string || ''}
-                  onChange={(e) => handleValueChange(field.id!, e.target.value)}
-                  placeholder={field.placeholder}
-                  error={fieldErrors[field.id!]}
-                  id={field.id!}
-                  aria-labelledby={`${field.id!}-label`}
-                  aria-required={field.required}
-                />
-              )}
-
-              {field.type === 'date' && (
-                <FormInput
-                  type="date"
-                  value={values[field.id!] as string || ''}
-                  onChange={(e) => handleValueChange(field.id!, e.target.value)}
-                  error={fieldErrors[field.id!]}
-                  id={field.id!}
-                  aria-labelledby={`${field.id!}-label`}
-                  aria-required={field.required}
-                />
-              )}
-
-              {field.type === 'radio' && (
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
-                  role="radiogroup"
-                  aria-labelledby={`${field.id!}-label`}
-                  aria-required={field.required}
-                  aria-invalid={!!fieldErrors[field.id!]}
-                >
-                  {field.options?.map((option) => (
-                    <label
-                      key={option.value}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#f1f5f9' }}
-                    >
-                      <input
-                        type="radio"
-                        name={field.id}
-                        id={`${field.id!}-${option.value}`}
-                        value={option.value}
-                        checked={values[field.id!] === option.value}
-                        onChange={(e) => handleValueChange(field.id!, e.target.value)}
-                        aria-label={option.label}
-                        style={{
-                          accentColor: '#6366f1',
-                          width: 18,
-                          height: 18,
-                          cursor: 'pointer',
-                        }}
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                  {fieldErrors[field.id!] && (
-                    <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ color: '#ef4444' }}>
-                      {fieldErrors[field.id!]}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-
-              {field.type === 'checkbox' && (
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
-                  role="group"
-                  aria-labelledby={`${field.id!}-label`}
-                  aria-required={field.required}
-                  aria-invalid={!!fieldErrors[field.id!]}
-                >
-                  {field.options?.map((option) => (
-                    <label
-                      key={option.value}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#f1f5f9' }}
-                    >
-                      <input
-                        type="checkbox"
-                        name={field.id}
-                        id={`${field.id!}-${option.value}`}
-                        value={option.value}
-                        checked={Array.isArray(values[field.id!]) && (values[field.id!] as string[]).includes(option.value)}
-                        onChange={(e) => {
-                          const currentValues = (values[field.id!] as string[]) || []
-                          if (e.target.checked) {
-                            handleValueChange(field.id!, [...currentValues, option.value])
-                          } else {
-                            handleValueChange(field.id!, currentValues.filter((v: string) => v !== option.value))
-                          }
-                        }}
-                        aria-label={option.label}
-                        style={{
-                          accentColor: '#6366f1',
-                          width: 18,
-                          height: 18,
-                          cursor: 'pointer',
-                        }}
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                  {fieldErrors[field.id!] && (
-                    <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ color: '#ef4444' }}>
-                      {fieldErrors[field.id!]}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-
-              {fieldErrors[field.id!] && field.type !== 'radio' && field.type !== 'checkbox' && (
-                <Typography variant="caption" role="alert" id={`${field.id!}-error`} sx={{ mt: 0.5, color: '#ef4444' }}>
-                  {fieldErrors[field.id!]}
-                </Typography>
-              )}
-            </Box>
+            <FieldRenderer
+              key={field.id || field.order}
+              field={field}
+              value={values[field.id!] || ''}
+              onChange={(value) => handleValueChange(field.id!, value as FieldValue)}
+              error={fieldErrors[field.id!]}
+            />
           ))}
 
           {form.fields.length === 0 && (
