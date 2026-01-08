@@ -8,7 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { formStyles } from '@/theme'
 
 export interface FormInputProps extends Omit<MuiTextFieldProps, 'variant'> {
-  label: string
+  label?: string
   error?: string
 }
 
