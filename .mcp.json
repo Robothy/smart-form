@@ -4,14 +4,14 @@
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/",
       "headers": {
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
     },
     "context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp",
       "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-3e0408b6-18e6-4f2c-a7cb-09717adfe7a2"
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       }
     },
     "mui-mcp": {
