@@ -101,3 +101,6 @@ desktop.ini
 
 # Claude Code settings (keep local configs, ignore shared if needed)
 .claude/settings.local.*
+
+# npm configuration (keep local)
+.npmrc
