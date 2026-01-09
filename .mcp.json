@@ -22,6 +22,10 @@
         "@mui/mcp@latest"
       ],
       "env": {}
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--isolated", "--no-sandbox"]
     }
   }
 }
