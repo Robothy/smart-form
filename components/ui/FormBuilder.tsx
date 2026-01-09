@@ -3,21 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { Box, Button, Paper, Typography, TextField, Stack, IconButton, MenuItem, FormControlLabel, Switch } from '@mui/material'
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material'
-import { FormField } from '@/components/ui/FormField'
+import { FieldGroup } from '@/components/ui/FieldGroup'
 import { FormInput } from '@/components/ui/FormInput'
 import { layoutStyles, buttonStyles, flexStyles } from '@/theme'
+import { FIELD_EDITOR_REGISTRY, type FormFieldType, type FormFieldData } from '@/components/forms/edit/fieldEditors'
 
-export type FormFieldType = 'text' | 'textarea' | 'date' | 'radio' | 'checkbox'
-
-export interface FormFieldData {
-  id?: string
-  type: FormFieldType
-  label: string
-  placeholder?: string
-  required: boolean
-  options?: { label: string; value: string }[]
-  order: number
-}
+// Re-export types for backward compatibility
+export type { FormFieldType, FormFieldData } from '@/components/forms/edit/fieldEditors'
 
 export interface FormData {
   id?: string
@@ -88,8 +80,24 @@ export function FormBuilder({
   }
 
   const handleFieldTypeChange = (index: number, newType: FormFieldType) => {
+    const field = localForm.fields[index]
     const updatedFields = [...localForm.fields]
-    updatedFields[index] = { ...updatedFields[index], type: newType }
+
+    // Smart data preservation when switching field types
+    const hasPlaceholder = ['text', 'textarea', 'date'].includes(field.type)
+    const needsPlaceholder = ['text', 'textarea', 'date'].includes(newType)
+    const hasOptions = ['radio', 'checkbox'].includes(field.type)
+    const needsOptions = ['radio', 'checkbox'].includes(newType)
+
+    updatedFields[index] = {
+      ...field,
+      type: newType,
+      // Preserve placeholder only if both old and new types support it
+      placeholder: hasPlaceholder && needsPlaceholder ? field.placeholder : undefined,
+      // Preserve options only if both old and new types support it
+      options: hasOptions && needsOptions ? field.options : undefined,
+    }
+
     const updated = { ...localForm, fields: updatedFields }
     setLocalForm(updated)
     onUpdate?.(updated)
@@ -150,7 +158,7 @@ export function FormBuilder({
 
       <Stack spacing={3}>
         {/* Form metadata */}
-        <FormField label="Form Title" required>
+        <FieldGroup label="Form Title" required>
           <TextField
             fullWidth
             value={localForm.title}
@@ -179,9 +187,9 @@ export function FormBuilder({
               },
             }}
           />
-        </FormField>
+        </FieldGroup>
 
-        <FormField label="Description">
+        <FieldGroup label="Description">
           <TextField
             fullWidth
             multiline
@@ -212,7 +220,7 @@ export function FormBuilder({
               },
             }}
           />
-        </FormField>
+        </FieldGroup>
 
         {/* Form fields */}
         <Box>
@@ -332,35 +340,8 @@ export function FormBuilder({
                         </Button>
                       </Box>
 
-                      <FormField label="Field Label" required>
-                        <TextField
-                          fullWidth
-                          value={field.label}
-                          onChange={(e) => handleFieldChange(index, { label: e.target.value })}
-                          disabled={readonly}
-                          placeholder="Field label"
-                          autoFocus
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              background: 'rgba(19, 19, 26, 0.8)',
-                              '& input': {
-                                color: '#f1f5f9',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: '#94a3b8',
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.15)',
-                            },
-                          }}
-                        />
-                      </FormField>
-
-                      <FormField label="Field Type">
+                      {/* Field Type Selector - moved to top */}
+                      <FieldGroup label="Field Type">
                         <TextField
                           fullWidth
                           select
@@ -407,7 +388,7 @@ export function FormBuilder({
                             },
                           }}
                         >
-                          {['text', 'textarea', 'date', 'radio', 'checkbox'].map((type) => (
+                          {Object.entries(FIELD_EDITOR_REGISTRY).map(([type, config]) => (
                             <MenuItem
                               key={type}
                               value={type}
@@ -429,92 +410,23 @@ export function FormBuilder({
                                 },
                               }}
                             >
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
+                              {config.label}
                             </MenuItem>
                           ))}
                         </TextField>
-                      </FormField>
+                      </FieldGroup>
 
-                      <FormField label="Placeholder">
-                        <TextField
-                          fullWidth
-                          value={field.placeholder || ''}
-                          onChange={(e) => handleFieldChange(index, { placeholder: e.target.value })}
-                          disabled={readonly}
-                          placeholder="Placeholder text"
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              background: 'rgba(19, 19, 26, 0.8)',
-                              '& input': {
-                                color: '#f1f5f9',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: '#94a3b8',
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'rgba(255, 255, 255, 0.15)',
-                            },
-                          }}
-                        />
-                      </FormField>
-
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                        }}
-                      >
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={field.required}
-                              onChange={() => handleFieldChange(index, { required: !field.required })}
-                              disabled={readonly}
-                              sx={{
-                                '& .MuiSwitch-switchBase': {
-                                  '&.Mui-checked': {
-                                    color: '#6366f1',
-                                    '& + .MuiSwitch-track': {
-                                      backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                                      opacity: 1,
-                                    },
-                                  },
-                                },
-                                '& .MuiSwitch-track': {
-                                  backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                                  borderRadius: '12px',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                                  opacity: 1,
-                                },
-                                '& .MuiSwitch-thumb': {
-                                  backgroundColor: '#ffffff',
-                                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
-                                  opacity: 0.5,
-                                },
-                              }}
-                            />
-                          }
-                          label={
-                            <Typography
-                              sx={{
-                                color: field.required ? '#10b981' : '#94a3b8',
-                                fontWeight: 500,
-                                fontSize: '0.875rem',
-                              }}
-                            >
-                              {field.required ? 'Required' : 'Optional'}
-                            </Typography>
-                          }
-                        />
-                      </Box>
+                      {/* Registry-based field editor */}
+                      {(() => {
+                        const EditorComponent = FIELD_EDITOR_REGISTRY[field.type].component
+                        return (
+                          <EditorComponent
+                            field={field}
+                            onChange={(updates) => handleFieldChange(index, updates)}
+                            readonly={readonly}
+                          />
+                        )
+                      })()}
                     </Stack>
                   )}
                 </Box>
