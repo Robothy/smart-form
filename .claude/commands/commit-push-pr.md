@@ -105,25 +105,15 @@ Then run `git status` to verify commit succeeded.
 - If upstream exists: `git push`
 
 ### 9. Create Pull Request
-**Prefer GitHub MCP tools if available.** Check for MCP GitHub tools and use them first.
-
-If MCP tools are not available, fall back to `gh` CLI:
-- Check if `gh` CLI is available: `gh --version`
-- Determine base branch (usually `main` or `master`)
+Use the GitHub MCP `create_pull_request` tool to create the PR:
+- Determine base branch (usually `main` or `master`) from `git remote show origin`
+- Get the repository owner and name from `git remote get-url origin`
 - Draft PR title and body:
   - Title: Concise description (can use commit message or user-provided title)
   - Body: Include summary of changes with a test plan checklist
   - Do NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool references in either title or body
-- Create the PR:
-  ```bash
-  gh pr create --title "<title>" --body "<body>"
-  ```
+- Create the PR using `mcp__github__create_pull_request`
 - Return the PR URL to the user
-
-If neither MCP tools nor `gh` are available:
-- Inform the user that PR creation requires GitHub CLI or MCP
-- Provide instructions to install `gh`
-- Show the web URL they can visit to create the PR manually
 
 ### 10. Final verification
 Run `git status` to confirm clean working tree. Report success with commit hash, branch pushed, and PR URL.
