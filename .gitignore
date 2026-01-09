@@ -104,3 +104,6 @@ desktop.ini
 
 # npm configuration (keep local)
 .npmrc
+
+# Playwright MCP server artifacts
+.playwright-mcp/
