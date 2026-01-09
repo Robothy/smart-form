@@ -29,6 +29,15 @@ export default function EditFormPage() {
   const { publish, isPublishing, error: publishError, clearError: clearPublishError } = useFormPublish(formId, form)
 
   const [error, setError] = useState<string | null>(null)
+  // Track local edits - initialize with loaded form and update on changes
+  const [editedForm, setEditedForm] = useState<FormData | null>(null)
+
+  // Update edited form when loaded form changes
+  useEffect(() => {
+    if (form) {
+      setEditedForm(form)
+    }
+  }, [form])
 
   // Redirect to view page if form is already published
   useEffect(() => {
@@ -47,11 +56,13 @@ export default function EditFormPage() {
     setError(null)
     clearPublishError()
     await save(data)
+    // Refresh edited form from server after successful save
+    // The useFormLoader hook will refetch the form
   }
 
-  const handleUpdate = (_updated: FormData) => {
-    // Form state is managed by useFormLoader hook
-    // This is a placeholder for future state updates if needed
+  const handleUpdate = (updated: FormData) => {
+    // Track local edits from FormBuilder
+    setEditedForm(updated)
   }
 
   const handlePublish = async () => {
@@ -81,15 +92,15 @@ export default function EditFormPage() {
   return (
     <>
       {/* Sticky toolbar - outside container to stick at top */}
-      {!isPublished && (
+      {!isPublished && editedForm && (
         <EditToolbar
-          title={form.title || 'Untitled form'}
-          subtitle={`Draft • ${form.fields.length} field${form.fields.length === 1 ? '' : 's'}`}
-          onSave={() => handleSave({ title: form.title, description: form.description, fields: form.fields })}
+          title={editedForm.title || 'Untitled form'}
+          subtitle={`Draft • ${editedForm.fields.length} field${editedForm.fields.length === 1 ? '' : 's'}`}
+          onSave={() => handleSave({ title: editedForm.title, description: editedForm.description, fields: editedForm.fields })}
           onPublish={handlePublish}
           isSaving={isSaving}
           isPublishing={isPublishing}
-          hasFields={form.fields.length > 0}
+          hasFields={editedForm.fields.length > 0}
         />
       )}
 
@@ -126,7 +137,7 @@ export default function EditFormPage() {
         )}
 
         <FormBuilder
-          form={form}
+          form={editedForm || form}
           onSave={handleSave}
           onUpdate={handleUpdate}
           readonly={isPublished}
