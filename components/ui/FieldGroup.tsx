@@ -11,7 +11,7 @@ import {
 import { ReactNode } from 'react'
 import { formStyles } from '@/theme'
 
-export interface FormFieldProps {
+export interface FieldGroupProps {
   label?: string
   required?: boolean
   error?: string
@@ -20,10 +20,10 @@ export interface FormFieldProps {
 }
 
 /**
- * FormField wrapper component
+ * FieldGroup wrapper component
  * Provides consistent field layout with label, required indicator, and error display
  */
-export function FormField({ label, required, error, children, sx }: FormFieldProps) {
+export function FieldGroup({ label, required, error, children, sx }: FieldGroupProps) {
   return (
     <FormControl
       sx={{
