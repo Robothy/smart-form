@@ -11,6 +11,15 @@ const nextConfig = {
     // WARNING: This should be disabled for production!
     ignoreBuildErrors: false,
   },
+  // Enable file watching with polling for Docker compatibility
+  webpack: (config, { isServer }) => {
+    config.watchOptions = {
+      poll: 1000, // Check for changes every second
+      aggregateTimeout: 300, // Delay before rebuilding
+      ignored: ['**/node_modules', '**/.git', '**/.next'],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;

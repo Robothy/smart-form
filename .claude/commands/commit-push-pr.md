@@ -50,7 +50,40 @@ Run these commands in parallel:
 - `git diff --staged` - See staged changes
 - `git log -5 --oneline` - Understand recent commit message style
 
-### 5. Draft commit message
+### 5. Security check for secrets
+Analyze the staged changes for potential secrets or sensitive information. Check for:
+
+**Common secret patterns:**
+- API keys: `sk-`, `api_key`, `apikey`, `API_KEY`
+- Tokens: `token`, `bearer`, `jwt`, `JWT`, `access_token`
+- Passwords: `password`, `passwd`, `PASSWORD`
+- Secrets: `secret`, `SECRET`, `private_key`, `PRIVATE_KEY`
+- Database: `mongodb://`, `postgresql://`, `mysql://`, `redis://`
+- AWS: `AKIA[0-9A-Z]{16}`, `aws_access_key`
+- GitHub: `ghp_`, `gho_`, `ghu_`, `ghs_`, `ghr_`
+- URLs with credentials: `://.*:.*@`
+- Base64 that looks like keys (long base64 strings)
+
+Run `git diff --staged` and grep for sensitive patterns:
+```bash
+git diff --staged | grep -iE "(sk-[a-zA-Z0-9]{20,}|API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY|mongodb://|postgresql://|mysql://|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{36}|://.*:.*@)"
+```
+
+**If secrets are detected:**
+- Show the user what was found (file and line, with the secret partially redacted)
+- Use `AskUserQuestion` tool with:
+  - Header: "Secrets detected"
+  - Question: "⚠️ Potential secrets detected in commit! Do you want to proceed anyway?"
+  - Options:
+    - "No, stop" (Recommended): Stop and let user remove secrets
+    - "Yes, proceed": Continue with commit despite the risk
+- If "No, stop" selected: advise user to remove the secrets and re-stage changes
+- If "Yes, proceed" selected: continue to commit step
+
+**If no secrets are detected:**
+- Continue to next step
+
+### 6. Draft commit message
 - If user provided a commit message in $ARGUMENTS, use that
 - Otherwise, analyze changes and draft a concise commit message following the repository's style
 - The commit message should:
@@ -59,15 +92,8 @@ Run these commands in parallel:
   - NOT include file listings or technical details
   - NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool references
 
-### 6. Confirm before committing
-- Show the drafted commit message
-- Show summary of changes (files changed, insertions, deletions)
-- Ask: "Commit with this message? (yes/no/edit)"
-- If user says "edit", allow them to provide a new message
-- If user says "no", stop and ask what they'd like to do
-
 ### 7. Create the commit
-Run `git commit` with the confirmed message:
+Run `git commit` with the drafted message:
 ```bash
 git commit -m "<commit message>"
 ```
