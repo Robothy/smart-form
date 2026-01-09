@@ -37,7 +37,6 @@ export function FormBuilder({
   showSaveButton = true,
   showHeading = true,
 }: FormBuilderProps) {
-  const [localForm, setLocalForm] = useState<FormData>(form)
   const [isSaving, setIsSaving] = useState(false)
   const [expandedFieldIndex, setExpandedFieldIndex] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -72,16 +71,15 @@ export function FormBuilder({
   }, [expandedFieldIndex])
 
   const handleFieldChange = (index: number, field: Partial<FormFieldData>) => {
-    const updatedFields = [...localForm.fields]
+    const updatedFields = [...form.fields]
     updatedFields[index] = { ...updatedFields[index], ...field }
-    const updated = { ...localForm, fields: updatedFields }
-    setLocalForm(updated)
+    const updated = { ...form, fields: updatedFields }
     onUpdate?.(updated)
   }
 
   const handleFieldTypeChange = (index: number, newType: FormFieldType) => {
-    const field = localForm.fields[index]
-    const updatedFields = [...localForm.fields]
+    const field = form.fields[index]
+    const updatedFields = [...form.fields]
 
     // Smart data preservation when switching field types
     const hasPlaceholder = ['text', 'textarea', 'date'].includes(field.type)
@@ -98,8 +96,7 @@ export function FormBuilder({
       options: hasOptions && needsOptions ? field.options : undefined,
     }
 
-    const updated = { ...localForm, fields: updatedFields }
-    setLocalForm(updated)
+    const updated = { ...form, fields: updatedFields }
     onUpdate?.(updated)
   }
 
@@ -108,18 +105,16 @@ export function FormBuilder({
       type: 'text',
       label: '',
       required: false,
-      order: localForm.fields.length,
+      order: form.fields.length,
     }
-    const updated = { ...localForm, fields: [...localForm.fields, newField] }
-    setLocalForm(updated)
+    const updated = { ...form, fields: [...form.fields, newField] }
     onUpdate?.(updated)
-    setExpandedFieldIndex(localForm.fields.length)
+    setExpandedFieldIndex(form.fields.length)
   }
 
   const removeField = (index: number) => {
-    const updatedFields = localForm.fields.filter((_, i) => i !== index)
-    const updated = { ...localForm, fields: updatedFields }
-    setLocalForm(updated)
+    const updatedFields = form.fields.filter((_, i) => i !== index)
+    const updated = { ...form, fields: updatedFields }
     onUpdate?.(updated)
     if (expandedFieldIndex === index) {
       setExpandedFieldIndex(null)
@@ -132,9 +127,9 @@ export function FormBuilder({
     setIsSaving(true)
     try {
       await onSave({
-        title: localForm.title,
-        description: localForm.description,
-        fields: localForm.fields,
+        title: form.title,
+        description: form.description,
+        fields: form.fields,
       })
     } finally {
       setIsSaving(false)
@@ -152,7 +147,7 @@ export function FormBuilder({
     >
       {showHeading && (
         <Typography variant="h4" gutterBottom sx={{ color: '#f1f5f9', fontWeight: 700 }}>
-          {readonly ? 'View Form' : localForm.id ? 'Edit Form' : 'Create New Form'}
+          {readonly ? 'View Form' : form.id ? 'Edit Form' : 'Create New Form'}
         </Typography>
       )}
 
@@ -161,10 +156,9 @@ export function FormBuilder({
         <FieldGroup label="Form Title" required>
           <TextField
             fullWidth
-            value={localForm.title}
+            value={form.title}
             onChange={(e) => {
-              const updated = { ...localForm, title: e.target.value }
-              setLocalForm(updated)
+              const updated = { ...form, title: e.target.value }
               onUpdate?.(updated)
             }}
             disabled={readonly}
@@ -194,10 +188,9 @@ export function FormBuilder({
             fullWidth
             multiline
             rows={3}
-            value={localForm.description || ''}
+            value={form.description || ''}
             onChange={(e) => {
-              const updated = { ...localForm, description: e.target.value }
-              setLocalForm(updated)
+              const updated = { ...form, description: e.target.value }
               onUpdate?.(updated)
             }}
             disabled={readonly}
@@ -229,7 +222,7 @@ export function FormBuilder({
           </Typography>
 
           <Stack spacing={2}>
-            {localForm.fields.map((field, index) => {
+            {form.fields.map((field, index) => {
               const isExpanded = expandedFieldIndex === index
 
               return (
@@ -433,7 +426,7 @@ export function FormBuilder({
               )
             })}
 
-            {localForm.fields.length === 0 && (
+            {form.fields.length === 0 && (
               <Box
                 sx={{
                   p: 4,
@@ -482,7 +475,7 @@ export function FormBuilder({
             variant="contained"
             size="large"
             onClick={handleSave}
-            disabled={isSaving || !localForm.title.trim()}
+            disabled={isSaving || !form.title.trim()}
             fullWidth
             sx={{
               fontSize: '1rem',
@@ -495,7 +488,7 @@ export function FormBuilder({
               },
             }}
           >
-            {isSaving ? 'Saving...' : localForm.id ? 'Save Changes' : 'Create Form'}
+            {isSaving ? 'Saving...' : form.id ? 'Save Changes' : 'Create Form'}
           </Button>
         )}
       </Stack>
