@@ -16,14 +16,21 @@ export async function GET(request: NextRequest) {
     const origin = request.nextUrl.origin
 
     const db = await getDb()
-    let query = db.select().from(schema.forms).orderBy(schema.forms.createdAt)
+    let forms
 
     // Filter by status if provided
     if (status === 'draft' || status === 'published') {
-      query = query.where(eq(schema.forms.status, status))
+      forms = await db
+        .select()
+        .from(schema.forms)
+        .where(eq(schema.forms.status, status))
+        .orderBy(schema.forms.createdAt)
+    } else {
+      forms = await db
+        .select()
+        .from(schema.forms)
+        .orderBy(schema.forms.createdAt)
     }
-
-    const forms = await query
 
     // Get total counts for all statuses (for the filter tabs)
     const [allForms, draftForms, publishedForms] = await Promise.all([
@@ -121,7 +128,7 @@ export async function POST(request: NextRequest) {
         type: field.type,
         label: field.label,
         placeholder: field.placeholder || null,
-        required: field.required ? 1 : 0,
+        required: Boolean(field.required),
         options: field.options ? JSON.stringify(field.options) : null,
         order: field.order,
       }

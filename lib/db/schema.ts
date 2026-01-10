@@ -28,7 +28,7 @@ export const formFields = sqliteTable('form_fields', {
   }).notNull(),
   label: text('label').notNull(),
   placeholder: text('placeholder'),
-  required: integer('required', { mode: 'boolean' }).notNull().default(0),
+  required: integer('required', { mode: 'boolean' }).notNull().default(false),
   options: text('options'), // JSON string for radio/checkbox options
   order: integer('order').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),

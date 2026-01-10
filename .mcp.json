@@ -14,7 +14,7 @@
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       }
     },
-    "mui-mcp": {
+    "mui-docs": {
       "type": "stdio",
       "command": "npx",
       "args": [
@@ -26,6 +26,19 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest", "--isolated", "--no-sandbox"]
+    },
+    "mastra-docs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@mastra/mcp-docs-server"]
+    },
+    "CopilotKit MCP": {
+      "type": "http",
+      "url": "https://mcp.copilotkit.ai"
+    },
+    "webFetch": {
+      "command": "npx",
+      "args": ["-y", "@kazuph/mcp-fetch"]
     }
   }
 }

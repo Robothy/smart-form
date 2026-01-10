@@ -105,9 +105,7 @@ Then run `git status` to verify commit succeeded.
 - If upstream exists: `git push`
 
 ### 9. Create Pull Request
-Use the GitHub MCP `create_pull_request` tool to create the PR:
-- Determine base branch (usually `main` or `master`) from `git remote show origin`
-- Get the repository owner and name from `git remote get-url origin`
+Use the GitHub MCP `create_pull_request` tool to create the PR target to the `main` branch:
 - Draft PR title and body:
   - Title: Concise description (can use commit message or user-provided title)
   - Body: Include summary of changes with a test plan checklist
@@ -115,7 +113,13 @@ Use the GitHub MCP `create_pull_request` tool to create the PR:
 - Create the PR using `mcp__github__create_pull_request`
 - Return the PR URL to the user
 
-### 10. Final verification
+### 10. Switch back to main
+After PR is created, switch back to main branch:
+```bash
+git checkout main
+```
+
+### 11. Final verification
 Run `git status` to confirm clean working tree. Report success with commit hash, branch pushed, and PR URL.
 
 ## Important Notes
