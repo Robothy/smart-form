@@ -7,7 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { formStyles } from '@/theme'
 
-export interface FormInputProps extends Omit<MuiTextFieldProps, 'variant'> {
+export interface FormInputProps extends Omit<MuiTextFieldProps, 'variant' | 'error'> {
   label?: string
   error?: string
 }
@@ -72,14 +72,13 @@ export const FormInput = forwardRef<HTMLDivElement, FormInputProps>(
                 />
               ),
             }}
-            value={value || null}
+            value={value instanceof Date ? value : null}
             onChange={(newValue) => {
               if (onChange) {
                 // Create a synthetic event-like structure
-                const event = {
+                onChange({
                   target: { value: newValue },
-                } as React.ChangeEvent<HTMLInputElement>
-                onChange(event)
+                } as unknown as React.ChangeEvent<HTMLInputElement>)
               }
             }}
             slotProps={{
