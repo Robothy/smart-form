@@ -1,7 +1,7 @@
-import { Button as MuiButton, ButtonProps as MuiButtonProps } from '@mui/material'
+import { Button as MuiButton, type ButtonProps as MuiButtonProps } from '@mui/material'
 import { forwardRef } from 'react'
 
-export interface ButtonProps extends MuiButtonProps {}
+export type ButtonProps = MuiButtonProps
 
 /**
  * MUI Button wrapper component

@@ -9,6 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
+import { FormAssistant } from '@/components/forms/edit/FormAssistant'
 
 /**
  * Form creation page - create a new form with fields
@@ -129,6 +130,9 @@ export default function NewFormPage() {
         showHeading={false}
       />
     </Container>
+
+    {/* Add the FormAssistant popup - available for new forms too */}
+    {form && <FormAssistant form={form} onUpdate={handleUpdate} />}
     </>
   )
 }

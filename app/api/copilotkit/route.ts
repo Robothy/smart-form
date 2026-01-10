@@ -11,6 +11,7 @@ export const POST = async (req: NextRequest) => {
   // Get local Mastra agents for CopilotKit integration
   const mastraAgents = MastraAgent.getLocalAgents({
     mastra,
+    resourceId: 'form-builder', // Required by MastraAgent.getLocalAgents
   });
 
   // Create CopilotKit runtime with Mastra agents

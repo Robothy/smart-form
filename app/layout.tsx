@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import '@copilotkit/react-ui/styles.css'
+import { CopilotKit } from '@copilotkit/react-core'
 import { NavBar } from '@/components/common/NavBar'
 
 export const metadata: Metadata = {
@@ -15,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning>
-        <NavBar />
-        <main style={{ marginTop: 0 }}>
-          {children}
-        </main>
+        <CopilotKit runtimeUrl="/api/copilotkit" agent="formBuilder">
+          <NavBar />
+          <main style={{ marginTop: 0 }}>
+            {children}
+          </main>
+        </CopilotKit>
       </body>
     </html>
   )

@@ -10,9 +10,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@ag-ui/mastra": "^0.2.0",
+    "@ag-ui/mastra": "0.2.1-beta.1",
     "@ai-sdk/openai": "^3.0.7",
     "@ai-sdk/openai-compatible": "^2.0.4",
+    "@copilotkit/react-core": "^1.50.1",
+    "@copilotkit/react-ui": "^1.50.1",
     "@copilotkit/runtime": "^1.50.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",

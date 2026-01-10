@@ -438,7 +438,7 @@ export function FormBuilder({
                 }}
               >
                 <Typography sx={{ fontSize: '0.9375rem' }}>
-                  No fields added yet. Click "Add Field" to get started.
+                  No fields added yet. Click &ldquo;Add Field&rdquo; to get started.
                 </Typography>
               </Box>
             )}
