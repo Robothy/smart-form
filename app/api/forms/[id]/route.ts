@@ -139,7 +139,7 @@ export async function PUT(
         type: field.type,
         label: field.label,
         placeholder: field.placeholder || null,
-        required: field.required ? 1 : 0,
+        required: Boolean(field.required),
         options: field.options ? JSON.stringify(field.options) : null,
         order: field.order,
       }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb, schema } from '@/lib/db/client'
 import { eq } from 'drizzle-orm'
-import { UpdateFormFieldSchema, successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
+import { UpdateFormFieldSchema } from '@/lib/validation/schemas'
+import { successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
 
 /**
  * PUT /api/forms/:id/fields/:fieldId - Update a field

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { getDb } from '@/lib/db/client'
 import { forms, formFields, formSubmissions } from '@/lib/db/schema'
 import { successResponse, errorResponse } from '@/lib/utils/api-response'
-import { SubmissionDataSchema, type SubmissionData } from '@/lib/validation/schemas'
+import { FormSubmissionDataSchema, type FormSubmissionData } from '@/lib/validation/schemas'
 
 /**
  * GET /api/forms/:id/submissions - Get all submissions for a form

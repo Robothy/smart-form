@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb, schema } from '@/lib/db/client'
 import { eq, and } from 'drizzle-orm'
-import { CreateFormFieldSchema, UpdateFormFieldSchema, successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
+import { CreateFormFieldSchema, UpdateFormFieldSchema } from '@/lib/validation/schemas'
+import { successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
 import type { NewFormField } from '@/lib/db/schema'
 
 /**
