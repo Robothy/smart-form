@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import {
   Container,
-  Typography,
-  Box,
   Button,
   Alert,
 } from '@mui/material'
@@ -13,13 +11,25 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { SubmissionGrid, type FieldDefinition, type Submission } from '@/components/forms/submissions/SubmissionGrid'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
-import { flexStyles, buttonStyles } from '@/theme'
+import { buttonStyles } from '@/theme'
+
+interface ApiField {
+  id: string
+  label: string
+  type: string
+  required: number | boolean
+}
+
+interface ApiSubmission {
+  id: string
+  data: Record<string, unknown>
+  submittedAt: string
+}
 
 /**
  * Form submissions page - view all submissions for a published form
  */
 export default function SubmissionsPage() {
-  const router = useRouter()
   const params = useParams()
   const formId = params.id as string
 
@@ -44,7 +54,7 @@ export default function SubmissionsPage() {
         }
         const formResult = await formResponse.json()
         if (formResult.success) {
-          const fieldData: FieldDefinition[] = (formResult.data.fields || []).map((f: any) => ({
+          const fieldData: FieldDefinition[] = (formResult.data.fields || []).map((f: ApiField) => ({
             id: f.id,
             label: f.label,
             type: f.type,
@@ -86,7 +96,7 @@ export default function SubmissionsPage() {
 
         const submissionsResult = await submissionsResponse.json()
         if (submissionsResult.success) {
-          const subData: Submission[] = (submissionsResult.data.submissions || []).map((s: any) => ({
+          const subData: Submission[] = (submissionsResult.data.submissions || []).map((s: ApiSubmission) => ({
             id: s.id,
             data: s.data,
             submittedAt: s.submittedAt,

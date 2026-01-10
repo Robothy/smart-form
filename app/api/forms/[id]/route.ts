@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb, schema } from '@/lib/db/client'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
 import type { NewFormField } from '@/lib/db/schema'
+
+type FormResponseData = typeof schema.forms.$inferSelect & {
+  fields?: typeof schema.formFields.$inferSelect[]
+  shareableLink?: string
+}
 
 /**
  * GET /api/forms/:id - Get form details with fields
@@ -36,7 +41,7 @@ export async function GET(
       .orderBy(schema.formFields.order)
 
     // Add shareable link if published
-    const responseData: any = {
+    const responseData: FormResponseData = {
       ...form,
       fields,
     }

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb, schema } from '@/lib/db/client'
 import { eq, count } from 'drizzle-orm'
-import { CreateFormSchema, UpdateFormSchema } from '@/lib/validation/schemas'
 import { successResponse, errorResponse, ErrorCode } from '@/lib/utils/api-response'
 import type { NewForm, NewFormField } from '@/lib/db/schema'
+
+type FormListData = typeof schema.forms.$inferSelect & {
+  fieldsCount?: number
+  submissionsCount?: number
+  shareableLink?: string
+}
 
 /**
  * GET /api/forms - List all forms
@@ -53,7 +58,7 @@ export async function GET(request: NextRequest) {
             .where(eq(schema.formSubmissions.formId, form.id)),
         ])
 
-        const result: any = {
+        const result: FormListData = {
           ...form,
           fieldsCount: fieldsCountResult[0]?.count || 0,
           submissionsCount: submissionsCountResult[0]?.count || 0,

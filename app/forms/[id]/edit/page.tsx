@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { EditToolbar } from '@/components/forms/edit/EditToolbar'
 import { FormLoadingState } from '@/components/forms/edit/FormLoadingState'
 import { SuccessSnackbar } from '@/components/forms/edit/SuccessSnackbar'
+import { FormAssistant } from '@/components/forms/edit/FormAssistant'
 import { useFormLoader } from '@/lib/hooks/use-form-loader'
 import { useFormSave } from '@/lib/hooks/use-form-save'
 import { useFormPublish } from '@/lib/hooks/use-form-publish'
@@ -147,6 +148,9 @@ export default function EditFormPage() {
       </Container>
 
       <SuccessSnackbar open={isSuccess} onClose={handleCloseSnackbar} />
+
+      {/* Add the FormAssistant popup */}
+      {!isPublished && editedForm && <FormAssistant form={editedForm} onUpdate={handleUpdate} />}
     </>
   )
 }

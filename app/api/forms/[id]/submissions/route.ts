@@ -3,7 +3,19 @@ import { eq } from 'drizzle-orm'
 import { getDb } from '@/lib/db/client'
 import { forms, formFields, formSubmissions } from '@/lib/db/schema'
 import { successResponse, errorResponse } from '@/lib/utils/api-response'
-import { FormSubmissionDataSchema, type FormSubmissionData } from '@/lib/validation/schemas'
+
+interface FieldOption {
+  value: string
+  label: string
+}
+
+interface FormFieldWithOptions {
+  id: string
+  type: string
+  label: string
+  required: boolean | number
+  options: string | FieldOption[]
+}
 
 /**
  * GET /api/forms/:id/submissions - Get all submissions for a form
@@ -121,19 +133,19 @@ export async function POST(
       .orderBy(formFields.order)
 
     // Parse options from JSON
-    const fields = fieldsResult.map((field) => ({
+    const fields = fieldsResult.map((field): FormFieldWithOptions => ({
       ...field,
-      options: field.options ? JSON.parse(field.options) : undefined,
+      options: field.options ? JSON.parse(field.options) : [],
     }))
 
     // Parse and validate request body
     const body = await request.json()
 
     // Create validation schema with dynamic field definitions
-    const fieldValidators: Record<string, any> = {}
+    const fieldValidators: Record<string, string | string[] | null> = {}
 
     for (const field of fields) {
-      let validator: any
+      let validator: boolean
 
       switch (field.type) {
         case 'text':
@@ -151,12 +163,12 @@ export async function POST(
           break
         case 'radio':
           validator = typeof body[field.id] === 'string' &&
-            field.options?.some((opt: any) => opt.value === body[field.id])
+            (field.options as FieldOption[]).some((opt: FieldOption) => opt.value === body[field.id])
           break
         case 'checkbox':
           validator = Array.isArray(body[field.id]) &&
             body[field.id].every((val: string) =>
-              field.options?.some((opt: any) => opt.value === val)
+              (field.options as FieldOption[]).some((opt: FieldOption) => opt.value === val)
             )
           break
         default:

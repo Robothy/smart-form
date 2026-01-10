@@ -12,23 +12,19 @@ import {
   Paper,
   Stack,
   Chip,
-  TextField,
-  IconButton,
 } from '@mui/material'
 import {
   ContentCopy as CopyIcon,
   Delete as DeleteIcon,
-  FileCopy as FileCopyIcon,
   ArrowBack as ArrowBackIcon,
   Visibility as VisibilityIcon,
   Share as ShareIcon,
 } from '@mui/icons-material'
-import { FormStatusBadge } from '@/components/forms/view/FormStatusBadge'
 import { ShareLinkDisplay } from '@/components/forms/view/ShareLinkDisplay'
 import { CopyFormButton } from '@/components/forms/view/CopyFormButton'
 import { DeleteConfirmationDialog } from '@/components/forms/view/DeleteConfirmationDialog'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
-import type { FormData, FormFieldData } from '@/components/ui/FormBuilder'
+import type { FormData } from '@/components/ui/FormBuilder'
 import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
 
 /**
