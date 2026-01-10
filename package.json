@@ -10,8 +10,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@ag-ui/mastra": "^0.2.0",
     "@ai-sdk/openai": "^3.0.7",
     "@ai-sdk/openai-compatible": "^2.0.4",
+    "@copilotkit/runtime": "^1.50.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@libsql/client": "^0.10.0",
