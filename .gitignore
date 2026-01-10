@@ -107,3 +107,6 @@ desktop.ini
 
 # Playwright MCP server artifacts
 .playwright-mcp/
+
+# Mastra build output
+.mastra/
