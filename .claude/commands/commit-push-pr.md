@@ -90,7 +90,7 @@ git diff --staged | grep -iE "(sk-[a-zA-Z0-9]{20,}|API_KEY|SECRET|PASSWORD|TOKEN
   - Start with a verb (Add, Fix, Refactor, Remove, Update, etc.)
   - Be 1-2 sentences describing what changed and why
   - NOT include file listings or technical details
-  - NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool references
+  - **CRITICAL:** Do NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool or email references
 
 ### 7. Create the commit
 Run `git commit` with the drafted message:
@@ -111,7 +111,7 @@ Use the GitHub MCP `create_pull_request` tool to create the PR:
 - Draft PR title and body:
   - Title: Concise description (can use commit message or user-provided title)
   - Body: Include summary of changes with a test plan checklist
-  - Do NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool references in either title or body
+  - **CRITICAL:** Do NOT include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool or email references in either title or body
 - Create the PR using `mcp__github__create_pull_request`
 - Return the PR URL to the user
 
