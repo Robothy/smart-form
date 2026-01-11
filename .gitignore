@@ -108,5 +108,10 @@ desktop.ini
 # Playwright MCP server artifacts
 .playwright-mcp/
 
-# Mastra build output
+# Mastra build output and data
 .mastra/
+
+# Mastra runtime database files (created by LibSQLStore)
+mastra*.db
+mastra*.db-shm
+mastra*.db-wal

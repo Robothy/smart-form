@@ -4,10 +4,14 @@ import { useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
 
 export interface FormToolsConfig {
-  formTitle: string
-  formDescription: string | undefined
-  fields: FormFieldData[]
-  onUpdateForm: (updates: { title?: string; description?: string; fields?: FormFieldData[] }) => void
+  onUpdateForm: (
+    updates: { title?: string; description?: string; fields?: FormFieldData[] } | ((current: {
+      title: string
+      description: string | undefined
+      fields: FormFieldData[]
+    }) => { title?: string; description?: string; fields?: FormFieldData[] })
+  ) => void | Promise<void>
+  getCurrentState: () => { title: string; description: string | undefined; fields: FormFieldData[] }
 }
 
 /**
@@ -15,7 +19,7 @@ export interface FormToolsConfig {
  * These tools allow the AI agent to modify the form
  */
 export function useFormTools(config: FormToolsConfig) {
-  const { formTitle, formDescription, fields, onUpdateForm } = config
+  const { onUpdateForm, getCurrentState } = config
 
   // Tool: Update form title
   useFrontendTool({
@@ -30,8 +34,9 @@ export function useFormTools(config: FormToolsConfig) {
       },
     ],
     handler: async (args) => {
-      onUpdateForm({ title: (args as { title: string }).title })
-      return `Form title updated to: ${(args as { title: string }).title}`
+      const { title } = args as { title: string }
+      await onUpdateForm(() => ({ title }))
+      return `Form title updated to: ${title}`
     },
   })
 
@@ -48,7 +53,8 @@ export function useFormTools(config: FormToolsConfig) {
       },
     ],
     handler: async (args) => {
-      onUpdateForm({ description: (args as { description: string }).description })
+      const { description } = args as { description: string }
+      await onUpdateForm(() => ({ description }))
       return `Form description updated`
     },
   })
@@ -101,15 +107,17 @@ export function useFormTools(config: FormToolsConfig) {
         required?: boolean
         options?: { label: string; value: string }[]
       }
-      const newField: FormFieldData = {
-        type: type as FormFieldType,
-        label,
-        placeholder,
-        required: required ?? false,
-        options,
-        order: fields.length,
-      }
-      onUpdateForm({ fields: [...fields, newField] })
+      await onUpdateForm((current) => {
+        const newField: FormFieldData = {
+          type: type as FormFieldType,
+          label,
+          placeholder,
+          required: required ?? false,
+          options,
+          order: current.fields.length,
+        }
+        return { fields: [...current.fields, newField] }
+      })
       return `Added new ${type} field: ${label}`
     },
   })
@@ -143,12 +151,14 @@ export function useFormTools(config: FormToolsConfig) {
         fieldIndex: number
         updates: Partial<Pick<FormFieldData, 'label' | 'placeholder' | 'required' | 'type'>>
       }
-      if (fieldIndex < 0 || fieldIndex >= fields.length) {
-        throw new Error(`Invalid field index: ${fieldIndex}`)
-      }
-      const updatedFields = [...fields]
-      updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], ...updates }
-      onUpdateForm({ fields: updatedFields })
+      await onUpdateForm((current) => {
+        if (fieldIndex < 0 || fieldIndex >= current.fields.length) {
+          throw new Error(`Invalid field index: ${fieldIndex}`)
+        }
+        const updatedFields = [...current.fields]
+        updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], ...updates }
+        return { fields: updatedFields }
+      })
       return `Updated field at index ${fieldIndex}`
     },
   })
@@ -167,11 +177,13 @@ export function useFormTools(config: FormToolsConfig) {
     ],
     handler: async (args) => {
       const { fieldIndex } = args as { fieldIndex: number }
-      if (fieldIndex < 0 || fieldIndex >= fields.length) {
-        throw new Error(`Invalid field index: ${fieldIndex}`)
-      }
-      const updatedFields = fields.filter((_, i) => i !== fieldIndex)
-      onUpdateForm({ fields: updatedFields })
+      await onUpdateForm((current) => {
+        if (fieldIndex < 0 || fieldIndex >= current.fields.length) {
+          throw new Error(`Invalid field index: ${fieldIndex}`)
+        }
+        const updatedFields = current.fields.filter((_, i) => i !== fieldIndex)
+        return { fields: updatedFields }
+      })
       return `Removed field at index ${fieldIndex}`
     },
   })
@@ -182,11 +194,12 @@ export function useFormTools(config: FormToolsConfig) {
     description: 'Get a summary of the current form state',
     parameters: [],
     handler: async () => {
+      const current = getCurrentState()
       return {
-        title: formTitle,
-        description: formDescription || null,
-        fieldCount: fields.length,
-        fields: fields.map((f, i) => ({
+        title: current.title,
+        description: current.description || null,
+        fieldCount: current.fields.length,
+        fields: current.fields.map((f, i) => ({
           index: i,
           type: f.type,
           label: f.label || '(Untitled)',

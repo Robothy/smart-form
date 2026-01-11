@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useEffect } from 'react'
 import { CopilotPopup } from '@copilotkit/react-ui'
 import { useCopilotReadable } from '@copilotkit/react-core'
 import { useFormTools } from '@/lib/copilotkit/form-tools'
@@ -15,6 +16,13 @@ interface FormAssistantProps {
  * Provides AI-powered form building assistance
  */
 export function FormAssistant({ form, onUpdate }: FormAssistantProps) {
+  // Use a ref to track the latest form state synchronously
+  // This avoids closure staleness when multiple tool calls happen in parallel
+  const formRef = useRef(form)
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
+
   // Share form state with the agent
   useCopilotReadable({
     description: 'Current form state including title, description, and all fields',
@@ -37,18 +45,40 @@ export function FormAssistant({ form, onUpdate }: FormAssistantProps) {
 
   // Register form editing tools
   useFormTools({
-    formTitle: form.title,
-    formDescription: form.description,
-    fields: form.fields,
     onUpdateForm: (updates) => {
-      const updated: FormData = {
-        ...form,
-        ...(updates.title !== undefined && { title: updates.title }),
-        ...(updates.description !== undefined && { description: updates.description }),
-        ...(updates.fields !== undefined && { fields: updates.fields }),
+      const current = formRef.current
+      let updated: FormData
+
+      if (typeof updates === 'function') {
+        const result = updates({
+          title: current.title,
+          description: current.description,
+          fields: current.fields,
+        })
+        updated = {
+          ...current,
+          ...(result.title !== undefined && { title: result.title }),
+          ...(result.description !== undefined && { description: result.description }),
+          ...(result.fields !== undefined && { fields: result.fields }),
+        }
+      } else {
+        updated = {
+          ...current,
+          ...(updates.title !== undefined && { title: updates.title }),
+          ...(updates.description !== undefined && { description: updates.description }),
+          ...(updates.fields !== undefined && { fields: updates.fields }),
+        }
       }
+
+      // Update the ref immediately to avoid race conditions with parallel tool calls
+      formRef.current = updated
       onUpdate(updated)
     },
+    getCurrentState: () => ({
+      title: formRef.current.title,
+      description: formRef.current.description,
+      fields: formRef.current.fields,
+    }),
   })
 
   return (
