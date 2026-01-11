@@ -13,6 +13,7 @@ Common errors and solutions for CopilotKit + Mastra integration.
 | Tools not working | Component inside CopilotKit |
 | Unstyled popup | Import `@copilotkit/react-ui/styles.css` |
 | Wrong agent ID | Check `Known agents: [...]` in error |
+| `No memory is configured but resourceId/threadId were passed` | Add `memory: new MockMemory()` to agent |
 
 ## Runtime Errors
 
@@ -314,3 +315,4 @@ handler: async (args) => {
 - [ ] `useCopilotReadable` for state sharing
 - [ ] Type assertions in all handlers
 - [ ] `/api/copilotkit/info` returns expected agents
+- [ ] Agent has `memory` configured for conversation context
