@@ -1,23 +1,23 @@
 {
-	"name": "Simple Form Dev",
-	"dockerComposeFile": [
-		"../dev-env/docker-compose.yaml"
-	],
-	"service": "dev",
-	"workspaceFolder": "/workspace",
-	"shutdownAction": "stopCompose",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"dbaeumer.vscode-eslint",
-				"esbenp.prettier-vscode",
-				"ms-vscode.vscode-typescript-next"
-			],
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "bash"
-			}
-		}
-	},
-	"remoteUser": "dev",
-	"postStartCommand": "git config --global --add safe.directory /workspace"
+        "name": "Simple Form Dev",
+        "dockerComposeFile": [
+                "../dev-env/docker-compose.yaml"
+        ],
+        "service": "dev",
+        "workspaceFolder": "/workspace",
+        "shutdownAction": "stopCompose",
+        "customizations": {
+                "vscode": {
+                        "extensions": [
+                                "dbaeumer.vscode-eslint",
+                                "esbenp.prettier-vscode",
+                                "ms-vscode.vscode-typescript-next"
+                        ],
+                        "settings": {
+                                "terminal.integrated.defaultProfile.linux": "bash"
+                        }
+                }
+        },
+        "remoteUser": "dev",
+        "postStartCommand": "sudo chown -R $(id -u):$(id -g) /workspace/.git 2>/dev/null || true && git config --global --add safe.directory /workspace"
 }
