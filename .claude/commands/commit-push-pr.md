@@ -129,3 +129,4 @@ Run `git status` to confirm clean working tree. Report success with commit hash,
 - **NEVER** skip hooks (`--no-verify`) unless explicitly requested
 - If commit fails due to pre-commit hooks, fix the issues and create a NEW commit (do not amend)
 - If push fails, inform the user and suggest next steps (pull rebase, resolve conflicts, etc.)
+- **CRITICAL:** Never include any attribution to "Claude", "Claude Code", "Anthropic", or similar AI tool or email references in either PR title or body, or commit messages.
