@@ -1,6 +1,10 @@
 import { Mastra } from '@mastra/core/mastra'
 import { LibSQLStore } from '@mastra/libsql'
-import { Observability } from '@mastra/observability'
+import {
+  Observability,
+  DefaultExporter,
+  SensitiveDataFilter,
+} from '@mastra/observability'
 import { formBuilderAgent } from './agents/form-builder'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -18,7 +22,17 @@ export const mastra = new Mastra({
     formBuilder: formBuilderAgent,
   },
   observability: new Observability({
-    default: { enabled: true },
+    configs: {
+      default: {
+        serviceName: 'mastra',
+        exporters: [
+          new DefaultExporter(),
+        ],
+        spanOutputProcessors: [
+          new SensitiveDataFilter(),
+        ],
+      },
+    },
   }),
   storage: new LibSQLStore({
     id: 'mastra-store',
