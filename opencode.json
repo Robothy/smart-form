@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+      }
+    },
+    "mui-docs": {
+      "type": "local",
+      "command": ["npx", "-y", "@mui/mcp@latest"]
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest", "--isolated", "--no-sandbox"]
+    },
+    "mastra-docs": {
+      "type": "local",
+      "command": ["npx", "-y", "@mastra/mcp-docs-server@1.0.0-beta.21"]
+    },
+    "copilotkit": {
+      "type": "remote",
+      "url": "https://mcp.copilotkit.ai"
+    },
+    "webfetch": {
+      "type": "local",
+      "command": ["npx", "-y", "@kazuph/mcp-fetch"]
+    }
+  }
+}
