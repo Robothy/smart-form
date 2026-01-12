@@ -12,8 +12,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl ca-certificates gnupg lsb-release git sudo build-essential \
     python3 python3-pip python3-venv \
-    ca-certificates nodejs npm openssh-server && \
-    npm install -g @anthropic-ai/claude-code && \
+    ca-certificates openssh-server && \
     mkdir /var/run/sshd
 
 # Create a non-root user 'dev' for convenience
@@ -22,6 +21,14 @@ RUN useradd -ms /bin/bash dev && \
 
 WORKDIR /home/dev
 USER dev
+
+# Install nvm, latest node, and global packages
+ENV NVM_DIR /home/dev/.nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+    . $NVM_DIR/nvm.sh && \
+    nvm install node && \
+    nvm use node && \
+    npm install -g @anthropic-ai/claude-code opencode-ai
 
 
 
