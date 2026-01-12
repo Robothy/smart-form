@@ -6,7 +6,8 @@ services:
     container_name: simple-form-dev
     volumes:
       - ..:/workspace:cached
-      - ${USERPROFILE}/.ssh:/home/dev/.ssh:ro
+      - ${USERPROFILE}/.ssh:/tmp/host-ssh:ro
+      - ${USERPROFILE}/ca-certificates:/tmp/ca-certificates:ro
     working_dir: /workspace
     tty: true
     stdin_open: true
@@ -28,7 +29,15 @@ services:
     command: [
       "/bin/bash", 
       "-c",
-      "git config --global --add safe.directory /workspace && \
+      "mkdir -p ~/.ssh && \
+       if [ -d /tmp/host-ssh ]; then sudo cp -r /tmp/host-ssh/* ~/.ssh/ && sudo chown -R dev:dev ~/.ssh; fi && \
+       chmod 700 ~/.ssh && \
+       chmod 600 ~/.ssh/* 2>/dev/null || true && \
+       if [ -d /tmp/ca-certificates ]; then \
+         sudo cp /tmp/ca-certificates/*.crt /usr/local/share/ca-certificates/ 2>/dev/null || true && \
+         sudo update-ca-certificates; \
+       fi && \
+       git config --global --add safe.directory /workspace && \
        git config --global user.name 'robothy' && \
        git config --global user.email 'robothyluo@gmail.com' && \
        /bin/bash"
