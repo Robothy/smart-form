@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Container, Typography, Box, Alert, CircularProgress, Button } from '@mui/material'
 import { FormBuilder, type FormData } from '@/components/ui/FormBuilder'
@@ -9,7 +9,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
-import { FormAssistant } from '@/components/forms/edit/FormAssistant'
+import { useFormTools } from '@/lib/copilotkit/form-tools'
+import { useCopilotReadable } from '@copilotkit/react-core'
 
 /**
  * Form creation page - create a new form with fields
@@ -25,6 +26,67 @@ export default function NewFormPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
+
+  // Use a ref to track the latest form state synchronously for the tools
+  const formRef = useRef(form)
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
+
+  // Register form editing tools
+  useFormTools({
+    onUpdateForm: (updates) => {
+      const current = formRef.current
+      let updated: FormData
+
+      if (typeof updates === 'function') {
+        const result = updates({
+          title: current.title,
+          description: current.description,
+          fields: current.fields,
+        })
+        updated = {
+          ...current,
+          ...(result.title !== undefined && { title: result.title }),
+          ...(result.description !== undefined && { description: result.description }),
+          ...(result.fields !== undefined && { fields: result.fields }),
+        }
+      } else {
+        updated = {
+          ...current,
+          ...(updates.title !== undefined && { title: updates.title }),
+          ...(updates.description !== undefined && { description: updates.description }),
+          ...(updates.fields !== undefined && { fields: updates.fields }),
+        }
+      }
+
+      // Update the ref immediately to avoid race conditions
+      formRef.current = updated
+      setForm(updated)
+    },
+    getCurrentState: () => ({
+      title: formRef.current.title,
+      description: formRef.current.description,
+      fields: formRef.current.fields,
+    }),
+  })
+
+  // Share form state with the assistant
+  useCopilotReadable({
+    description: 'New form being created including title, description, and all fields',
+    value: JSON.stringify({
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      fields: form.fields.map((f) => ({
+        type: f.type,
+        label: f.label,
+        placeholder: f.placeholder,
+        required: f.required,
+        options: f.options,
+      })),
+    }),
+  })
 
   const handleSave = async (data: Omit<FormData, 'id' | 'status'>) => {
     setIsLoading(true)
@@ -115,24 +177,20 @@ export default function NewFormPage() {
       />
 
       <Container maxWidth="md" sx={{ py: 4, mt: 10 }}>
+        {error && (
+          <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-
-      <FormBuilder
-        form={form}
-        onSave={handleSave}
-        onUpdate={handleUpdate}
-        showSaveButton={false}
-        showHeading={false}
-      />
-    </Container>
-
-    {/* Add the FormAssistant popup - available for new forms too */}
-    {form && <FormAssistant form={form} onUpdate={handleUpdate} />}
+        <FormBuilder
+          form={form}
+          onSave={handleSave}
+          onUpdate={handleUpdate}
+          showSaveButton={false}
+          showHeading={false}
+        />
+      </Container>
     </>
   )
 }

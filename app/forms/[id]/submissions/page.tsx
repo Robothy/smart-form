@@ -12,6 +12,7 @@ import { SubmissionGrid, type FieldDefinition, type Submission } from '@/compone
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
+import { useSubmissionsTools } from '@/lib/copilotkit'
 
 interface ApiField {
   id: string
@@ -41,6 +42,17 @@ export default function SubmissionsPage() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [totalCount, setTotalCount] = useState(0)
+
+  // Register submissions tools
+  useSubmissionsTools({
+    formTitle,
+    totalCount,
+    fields,
+    submissions,
+    currentPage: page,
+    rowsPerPage,
+    onPageChange: setPage,
+  })
 
   // Load form fields once on mount
   useEffect(() => {
