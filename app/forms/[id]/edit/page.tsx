@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Container, Typography, Box, Alert } from '@mui/material'
@@ -13,7 +13,7 @@ import { SuccessSnackbar } from '@/components/forms/edit/SuccessSnackbar'
 import { useFormLoader } from '@/lib/hooks/use-form-loader'
 import { useFormSave } from '@/lib/hooks/use-form-save'
 import { useFormPublish } from '@/lib/hooks/use-form-publish'
-import { useFormTools } from '@/lib/copilotkit/form-tools'
+import { useFormEditingPageTools } from '@/lib/copilotkit'
 import { useCopilotReadable } from '@copilotkit/react-core'
 import { flexStyles } from '@/theme'
 
@@ -33,12 +33,6 @@ export default function EditFormPage() {
   const [error, setError] = useState<string | null>(null)
   // Track local edits - initialize with loaded form and update on changes
   const [editedForm, setEditedForm] = useState<FormData | null>(null)
-
-  // Use a ref to track the latest form state synchronously for the tools
-  const editedFormRef = useRef(editedForm)
-  useEffect(() => {
-    editedFormRef.current = editedForm
-  }, [editedForm])
 
   // Update edited form when loaded form changes
   useEffect(() => {
@@ -60,44 +54,10 @@ export default function EditFormPage() {
     if (publishError) setError(publishError)
   }, [saveError, publishError])
 
-  // Register form editing tools (always called, but handlers check if form is ready)
-  useFormTools({
-    onUpdateForm: (updates) => {
-      const current = editedFormRef.current
-      if (!current) return
-
-      let updated: FormData
-
-      if (typeof updates === 'function') {
-        const result = updates({
-          title: current.title,
-          description: current.description,
-          fields: current.fields,
-        })
-        updated = {
-          ...current,
-          ...(result.title !== undefined && { title: result.title }),
-          ...(result.description !== undefined && { description: result.description }),
-          ...(result.fields !== undefined && { fields: result.fields }),
-        }
-      } else {
-        updated = {
-          ...current,
-          ...(updates.title !== undefined && { title: updates.title }),
-          ...(updates.description !== undefined && { description: updates.description }),
-          ...(updates.fields !== undefined && { fields: updates.fields }),
-        }
-      }
-
-      // Update the ref immediately to avoid race conditions
-      editedFormRef.current = updated
-      setEditedForm(updated)
-    },
-    getCurrentState: () => ({
-      title: editedFormRef.current?.title || '',
-      description: editedFormRef.current?.description,
-      fields: editedFormRef.current?.fields || [],
-    }),
+  // Expose form editing state to tools (decoupled from tool registration)
+  useFormEditingPageTools({
+    form: editedForm,
+    onUpdateForm: (updated) => setEditedForm(updated),
   })
 
   // Share form state with the assistant (always called, but only shares when form exists)

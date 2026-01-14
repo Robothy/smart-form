@@ -6,7 +6,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import { Container, Box, Button } from '@mui/material'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
-import { useFillFormTools } from '@/lib/copilotkit'
+import { useFormFillingPageTools } from '@/lib/copilotkit'
 
 /**
  * Form fill page - allows users to fill out a published form
@@ -40,8 +40,8 @@ export default function FillFormPage() {
     loadFormForContext()
   }, [formId, slug])
 
-  // Register fill form tools
-  useFillFormTools({
+  // Expose form filling state to tools (decoupled from tool registration)
+  useFormFillingPageTools({
     form,
     values,
     onSetValue: (fieldId, value) => {

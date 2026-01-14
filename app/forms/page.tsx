@@ -18,7 +18,7 @@ import { FormCard } from '@/components/forms/list/FormCard'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
-import { useFormsListTools } from '@/lib/copilotkit'
+import { useFormsListPageTools } from '@/lib/copilotkit'
 
 type Form = {
   id: string
@@ -50,18 +50,11 @@ export default function FormsPage() {
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<StatusFilter>('all')
 
-  // Register forms list tools
-  useFormsListTools({
+  // Expose forms list state to tools (decoupled from tool registration)
+  useFormsListPageTools({
     forms,
     counts,
     currentFilter: filter,
-    onOpenForm: (formId) => {
-      const form = forms.find((f) => f.id === formId)
-      if (!form) return
-      const path = form.status === 'published' ? `/forms/${formId}/view` : `/forms/${formId}/edit`
-      router.push(path)
-    },
-    onCreateNewForm: () => router.push('/forms/new'),
     onFilterForms: setFilter,
   })
 

@@ -12,7 +12,7 @@ import { SubmissionGrid, type FieldDefinition, type Submission } from '@/compone
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
-import { useSubmissionsTools } from '@/lib/copilotkit'
+import { useSubmissionsViewingPageTools } from '@/lib/copilotkit'
 
 interface ApiField {
   id: string
@@ -43,8 +43,8 @@ export default function SubmissionsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [totalCount, setTotalCount] = useState(0)
 
-  // Register submissions tools
-  useSubmissionsTools({
+  // Expose submissions viewing state to tools (decoupled from tool registration)
+  useSubmissionsViewingPageTools({
     formTitle,
     totalCount,
     fields,

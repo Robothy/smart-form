@@ -26,7 +26,7 @@ import { DeleteConfirmationDialog } from '@/components/forms/view/DeleteConfirma
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import type { FormData } from '@/components/ui/FormBuilder'
 import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
-import { useViewFormTools } from '@/lib/copilotkit'
+import { useFormViewingPageTools } from '@/lib/copilotkit'
 
 /**
  * Form view page - view published form details and submissions
@@ -47,12 +47,10 @@ export default function ViewFormPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  // Register view form tools
-  useViewFormTools({
+  // Expose form viewing state to tools (decoupled from tool registration)
+  useFormViewingPageTools({
     form,
     formId,
-    onViewSubmissions: () => router.push(`/forms/${formId}/submissions`),
-    onEditForm: () => router.push(`/forms/${formId}/edit`),
   })
 
   useEffect(() => {
