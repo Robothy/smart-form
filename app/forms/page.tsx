@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Container,
+  Typography,
   Box,
   Button,
   Grid,
@@ -12,13 +13,13 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Chip,
+  Stack,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { FormCard } from '@/components/forms/list/FormCard'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
-import { useFormsListPageTools } from '@/lib/copilotkit'
 
 type Form = {
   id: string
@@ -49,14 +50,6 @@ export default function FormsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<StatusFilter>('all')
-
-  // Expose forms list state to tools (decoupled from tool registration)
-  useFormsListPageTools({
-    forms,
-    counts,
-    currentFilter: filter,
-    onFilterForms: setFilter,
-  })
 
   useEffect(() => {
     const abortController = new AbortController()
@@ -125,101 +118,101 @@ export default function FormsPage() {
       />
 
       <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
-        <Box sx={{ mb: 4 }}>
-          <ToggleButtonGroup
-            value={filter}
-            exclusive
-            onChange={(e, value) => value && setFilter(value)}
-            aria-label="form status filter"
-            sx={{
-              '& .MuiToggleButton-root': {
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                color: '#94a3b8',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                py: 1,
-                px: 2,
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                },
-                '&.Mui-selected': {
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
-                  border: '1px solid rgba(99, 102, 241, 0.4)',
-                  color: '#f1f5f9',
-                },
+      <Box sx={{ mb: 4 }}>
+        <ToggleButtonGroup
+          value={filter}
+          exclusive
+          onChange={(e, value) => value && setFilter(value)}
+          aria-label="form status filter"
+          sx={{
+            '& .MuiToggleButton-root': {
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              color: '#94a3b8',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              py: 1,
+              px: 2,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
               },
-            }}
-          >
-            <ToggleButton value="all" aria-label="all forms">
-              All <Chip label={counts.all} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
-            </ToggleButton>
-            <ToggleButton value="draft" aria-label="draft forms">
-              Drafts <Chip label={counts.draft} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
-            </ToggleButton>
-            <ToggleButton value="published" aria-label="published forms">
-              Published <Chip label={counts.published} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
-            </ToggleButton>
-          </ToggleButtonGroup>
+              '&.Mui-selected': {
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
+                border: '1px solid rgba(99, 102, 241, 0.4)',
+                color: '#f1f5f9',
+              },
+            },
+          }}
+        >
+          <ToggleButton value="all" aria-label="all forms">
+            All <Chip label={counts.all} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
+          </ToggleButton>
+          <ToggleButton value="draft" aria-label="draft forms">
+            Drafts <Chip label={counts.draft} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
+          </ToggleButton>
+          <ToggleButton value="published" aria-label="published forms">
+            Published <Chip label={counts.published} size="small" sx={{ ml: 1, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {error && (
+        <Alert
+          severity="error"
+          sx={{
+            mb: 4,
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 2,
+            color: '#ef4444',
+          }}
+          onClose={() => setError(null)}
+        >
+          {error}
+        </Alert>
+      )}
+
+      {isLoading ? (
+        <Box sx={{ ...flexStyles.center, py: 8 }}>
+          <CircularProgress sx={{ color: '#6366f1' }} />
         </Box>
-
-        {error && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 4,
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: 2,
-              color: '#ef4444',
-            }}
-            onClose={() => setError(null)}
-          >
-            {error}
-          </Alert>
-        )}
-
-        {isLoading ? (
-          <Box sx={{ ...flexStyles.center, py: 8 }}>
-            <CircularProgress sx={{ color: '#6366f1' }} />
-          </Box>
-        ) : forms.length === 0 ? (
-          <Alert
-            severity="info"
-            sx={{
-              background: 'rgba(59, 130, 246, 0.1)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: 2,
-              color: '#3b82f6',
-            }}
-          >
-            {filter === 'all'
-              ? 'No forms yet. Create your first form to get started!'
-              : `No ${filter} forms found.`}
-          </Alert>
-        ) : (
-          <Grid container spacing={3}>
-            {forms.map((form) => (
-              <Grid item xs={12} sm={6} md={4} key={form.id}>
-                <FormCard
-                  id={form.id}
-                  title={form.title}
-                  status={form.status}
-                  description={form.description}
-                  fieldsCount={form.fieldsCount}
-                  submissionsCount={form.submissionsCount}
-                  shareableLink={form.shareableLink}
-                  slug={form.slug}
-                  onClick={() => handleFormClick(form)}
-                  onDeleted={() => loadForms(new AbortController().signal)}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        )}
-      </Container>
+      ) : forms.length === 0 ? (
+        <Alert
+          severity="info"
+          sx={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: 2,
+            color: '#3b82f6',
+          }}
+        >
+          {filter === 'all'
+            ? 'No forms yet. Create your first form to get started!'
+            : `No ${filter} forms found.`}
+        </Alert>
+      ) : (
+        <Grid container spacing={3}>
+          {forms.map((form) => (
+            <Grid item xs={12} sm={6} md={4} key={form.id}>
+              <FormCard
+                id={form.id}
+                title={form.title}
+                status={form.status}
+                description={form.description}
+                fieldsCount={form.fieldsCount}
+                submissionsCount={form.submissionsCount}
+                shareableLink={form.shareableLink}
+                slug={form.slug}
+                onClick={() => handleFormClick(form)}
+                onDeleted={() => loadForms(new AbortController().signal)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Container>
     </>
   )
 }

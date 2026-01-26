@@ -3,8 +3,6 @@ import './globals.css'
 import '@copilotkit/react-ui/styles.css'
 import { CopilotKit } from '@copilotkit/react-core'
 import { NavBar } from '@/components/common/NavBar'
-import { PageContextProvider } from '@/lib/contexts/page-context'
-import { GlobalAssistant } from '@/components/GlobalAssistant'
 
 export const metadata: Metadata = {
   title: 'FormForge - Premium Form Builder',
@@ -20,14 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning>
         <CopilotKit runtimeUrl="/api/copilotkit" agent="formBuilder">
-          <PageContextProvider>
-            <GlobalAssistant defaultOpen={false}>
-              <NavBar />
-              <main style={{ marginTop: 0 }}>
-                {children}
-              </main>
-            </GlobalAssistant>
-          </PageContextProvider>
+          <NavBar />
+          <main style={{ marginTop: 0 }}>
+            {children}
+          </main>
         </CopilotKit>
       </body>
     </html>
