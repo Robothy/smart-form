@@ -26,11 +26,9 @@ export function PageToolbar({ title, subtitle, actions }: PageToolbarProps) {
         background: 'rgba(10, 10, 15, 0.85)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--color-border)',
-        position: 'fixed',
+        position: 'sticky',
         top: { xs: 56, sm: 64 },
-        left: 0,
-        right: 0,
-        zIndex: 1030,
+        zIndex: 1000,
         willChange: 'transform',
         transform: 'translateZ(0)',
       }}

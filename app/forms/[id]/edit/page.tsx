@@ -10,10 +10,11 @@ import { Button } from '@/components/ui/Button'
 import { EditToolbar } from '@/components/forms/edit/EditToolbar'
 import { FormLoadingState } from '@/components/forms/edit/FormLoadingState'
 import { SuccessSnackbar } from '@/components/forms/edit/SuccessSnackbar'
-import { FormAssistant } from '@/components/forms/edit/FormAssistant'
 import { useFormLoader } from '@/lib/hooks/use-form-loader'
 import { useFormSave } from '@/lib/hooks/use-form-save'
 import { useFormPublish } from '@/lib/hooks/use-form-publish'
+import { useFormEditingPageTools } from '@/lib/copilotkit'
+import { useCopilotReadable } from '@copilotkit/react-core'
 import { flexStyles } from '@/theme'
 
 /**
@@ -52,6 +53,35 @@ export default function EditFormPage() {
     if (saveError) setError(saveError)
     if (publishError) setError(publishError)
   }, [saveError, publishError])
+
+  // Expose form editing state to tools (decoupled from tool registration)
+  useFormEditingPageTools({
+    form: editedForm,
+    onUpdateForm: (updated) => setEditedForm(updated),
+  })
+
+  // Share form state with the assistant (always called, but only shares when form exists)
+  useCopilotReadable({
+    description: 'Current form being edited including title, description, and all fields',
+    value: JSON.stringify(
+      editedForm
+        ? {
+            formId: editedForm.id,
+            title: editedForm.title,
+            description: editedForm.description,
+            status: editedForm.status,
+            slug: editedForm.slug,
+            fields: editedForm.fields.map((f) => ({
+              type: f.type,
+              label: f.label,
+              placeholder: f.placeholder,
+              required: f.required,
+              options: f.options,
+            })),
+          }
+        : { status: 'loading' },
+    ),
+  })
 
   const handleSave = async (data: Omit<FormData, 'id' | 'status'>) => {
     setError(null)
@@ -92,7 +122,9 @@ export default function EditFormPage() {
 
   return (
     <>
-      {/* Sticky toolbar - outside container to stick at top */}
+      <SuccessSnackbar open={isSuccess} onClose={handleCloseSnackbar} />
+
+      {/* Toolbar */}
       {!isPublished && editedForm && (
         <EditToolbar
           title={editedForm.title || 'Untitled form'}
@@ -146,11 +178,6 @@ export default function EditFormPage() {
           showHeading={false}
         />
       </Container>
-
-      <SuccessSnackbar open={isSuccess} onClose={handleCloseSnackbar} />
-
-      {/* Add the FormAssistant popup */}
-      {!isPublished && editedForm && <FormAssistant form={editedForm} onUpdate={handleUpdate} />}
     </>
   )
 }

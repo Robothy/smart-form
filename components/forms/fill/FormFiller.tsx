@@ -12,6 +12,8 @@ import { buttonStyles, flexStyles } from '@/theme'
 export interface FormFillerProps {
   formId?: string
   slug?: string
+  externalValues?: Record<string, string | string[]>
+  onValuesChange?: (values: Record<string, string | string[]>) => void
 }
 
 export interface FormData {
@@ -23,15 +25,25 @@ export interface FormData {
   fields: FormFieldData[]
 }
 
-export function FormFiller({ formId, slug }: FormFillerProps) {
+export function FormFiller({ formId, slug, externalValues, onValuesChange }: FormFillerProps) {
   const router = useRouter()
   const [form, setForm] = useState<FormData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [values, setValues] = useState<Record<string, string | string[]>>({})
+  const [internalValues, setInternalValues] = useState<Record<string, string | string[]>>({})
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
+  // Use external values if provided, otherwise use internal state
+  const values = externalValues || internalValues
+
+  // Sync external values to internal state when external values change
+  useEffect(() => {
+    if (externalValues) {
+      setInternalValues(externalValues)
+    }
+  }, [externalValues])
 
   const targetId = formId || slug
 
@@ -72,7 +84,14 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
   }
 
   const handleValueChange = (fieldId: string, value: string | string[]) => {
-    setValues((prev) => ({ ...prev, [fieldId]: value }))
+    const newValues = { ...internalValues, [fieldId]: value }
+    setInternalValues(newValues)
+
+    // Notify parent of value change
+    if (onValuesChange) {
+      onValuesChange(newValues)
+    }
+
     // Clear error when user modifies the field
     if (fieldErrors[fieldId]) {
       setFieldErrors((prev) => {
@@ -123,7 +142,11 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
       } else {
         setIsSuccess(true)
         // Clear form values
-        setValues({})
+        const clearedValues = {}
+        setInternalValues(clearedValues)
+        if (onValuesChange) {
+          onValuesChange(clearedValues)
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit form')
@@ -148,7 +171,11 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
       <FormSuccessState
         onSubmitAnother={() => {
           setIsSuccess(false)
-          setValues({})
+          const clearedValues = {}
+          setInternalValues(clearedValues)
+          if (onValuesChange) {
+            onValuesChange(clearedValues)
+          }
         }}
         onReturnHome={() => router.push('/')}
       />

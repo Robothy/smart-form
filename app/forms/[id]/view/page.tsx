@@ -26,6 +26,7 @@ import { DeleteConfirmationDialog } from '@/components/forms/view/DeleteConfirma
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import type { FormData } from '@/components/ui/FormBuilder'
 import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
+import { useFormViewingPageTools } from '@/lib/copilotkit'
 
 /**
  * Form view page - view published form details and submissions
@@ -45,6 +46,12 @@ export default function ViewFormPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  // Expose form viewing state to tools (decoupled from tool registration)
+  useFormViewingPageTools({
+    form,
+    formId,
+  })
 
   useEffect(() => {
     const abortController = new AbortController()
