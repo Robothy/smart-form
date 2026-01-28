@@ -663,3 +663,88 @@ input[type='checkbox']:hover {
 .MuiPickersPopper-paper[role="dialog"] {
   transition: opacity 150ms ease-in-out !important;
 }
+
+/* ===================================
+   COPILOT CHAT SIDEBAR OVERRIDES
+   =================================== */
+
+/* Force dark theme for CopilotChat */
+.copilot-chat-container {
+  --copilot-kit-background-color: #1a1a2e !important;
+  --copilot-kit-primary-color: #6366f1 !important;
+  --copilot-kit-secondary-contrast-color: #f1f5f9 !important;
+  --copilot-kit-muted-color: #64748b !important;
+  --copilot-kit-border-color: rgba(255, 255, 255, 0.1) !important;
+  --copilot-kit-input-background-color: rgba(19, 19, 26, 0.8) !important;
+  --copilot-kit-separator-color: rgba(255, 255, 255, 0.1) !important;
+  --copilot-kit-user-message-background-color: rgba(99, 102, 241, 0.2) !important;
+  --copilot-kit-ai-message-background-color: transparent !important;
+}
+
+/* Force CopilotChat to fill its container */
+.copilot-chat-container .copilotKitChat {
+  height: 100% !important;
+}
+
+/* Messages area should take available space */
+.copilot-chat-container .copilotKitMessages {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Input container dark theme */
+.copilot-chat-container .copilotKitInputContainer {
+  background: #1a1a2e !important;
+}
+
+.copilot-chat-container .copilotKitInput {
+  background-color: rgba(19, 19, 26, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Input text color - ensure visibility */
+.copilot-chat-container .copilotKitInput > textarea {
+  color: #f1f5f9 !important;
+  caret-color: #6366f1 !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+}
+
+/* Placeholder color */
+.copilot-chat-container .copilotKitInput > textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+/* Control buttons color */
+.copilot-chat-container .copilotKitInputControlButton:not([disabled]) {
+  color: #6366f1 !important;
+}
+
+/* Replace "Powered by CopilotKit" text with custom text */
+.copilot-chat-container .poweredBy {
+  font-size: 0 !important;
+}
+
+.copilot-chat-container .poweredBy::before {
+  content: "AI Assistant by FormForge";
+  font-size: 12px !important;
+  color: #64748b !important;
+}
+
+/* AI message text - increase contrast for better readability */
+.copilot-chat-container .copilotKitMessages p,
+.copilot-chat-container .copilotKitMessages li,
+.copilot-chat-container .copilotKitMessages span,
+.copilot-chat-container .copilotKitMessages div {
+  color: #f1f5f9 !important;
+}
+
+/* User messages already have good contrast with their background,
+   but we specifically target AI message content without background */
+.copilot-chat-container .copilotKitMessages > div:not([class*="user"]) p,
+.copilot-chat-container .copilotKitMessages > div:not([class*="user"]) li,
+.copilot-chat-container .copilotKitMessages > div:not([class*="user"]) span {
+  color: #f1f5f9 !important;
+}
