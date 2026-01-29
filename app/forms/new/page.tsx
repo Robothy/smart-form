@@ -9,7 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
-import { FormAssistant } from '@/components/forms/edit/FormAssistant'
+import { usePageAiTools } from './ai-tools'
 
 /**
  * Form creation page - create a new form with fields
@@ -60,6 +60,15 @@ export default function NewFormPage() {
   const handleUpdate = (updated: FormData) => {
     setForm(updated)
   }
+
+  // Register AI tools for this page
+  usePageAiTools({
+    form,
+    onUpdate: handleUpdate,
+    onSave: async () => {
+      await handleSave({ title: form.title, description: form.description, fields: form.fields })
+    },
+  })
 
   if (isSuccess) {
     return (
@@ -130,9 +139,6 @@ export default function NewFormPage() {
         showHeading={false}
       />
     </Container>
-
-    {/* Add the FormAssistant popup - available for new forms too */}
-    {form && <FormAssistant form={form} onUpdate={handleUpdate} />}
     </>
   )
 }

@@ -1,25 +1,68 @@
 'use client'
 
-import { useFrontendTool } from '@copilotkit/react-core'
+import { useRef, useEffect } from 'react'
+import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
 
-export interface FormToolsConfig {
+export interface FormEditContextConfig {
+  form?: {
+    id?: string
+    title: string
+    description?: string
+    fields: FormFieldData[]
+    status: string
+    slug?: string | null
+  }
   onUpdateForm: (
-    updates: { title?: string; description?: string; fields?: FormFieldData[] } | ((current: {
-      title: string
-      description: string | undefined
-      fields: FormFieldData[]
-    }) => { title?: string; description?: string; fields?: FormFieldData[] })
+    updates:
+      | { title?: string; description?: string; fields?: FormFieldData[] }
+      | ((current: {
+          title: string
+          description: string | undefined
+          fields: FormFieldData[]
+        }) => { title?: string; description?: string; fields?: FormFieldData[] })
   ) => void | Promise<void>
-  getCurrentState: () => { title: string; description: string | undefined; fields: FormFieldData[] }
+  onSave?: () => Promise<void>
+  onPublish?: () => Promise<void>
 }
 
 /**
- * Hook that registers frontend tools for form editing
- * These tools allow the AI agent to modify the form
+ * Hook that registers AI tools for form editing pages
+ * Migrated from the original useFormTools hook
+ * Adds saveForm and publishForm tools
  */
-export function useFormTools(config: FormToolsConfig) {
-  const { onUpdateForm, getCurrentState } = config
+export function useFormEditContext(config: FormEditContextConfig) {
+  const { form, onUpdateForm, onSave, onPublish } = config
+
+  // Use a ref to track the latest form state synchronously
+  const formRef = useRef(form)
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
+
+  // Share form state with the AI
+  useCopilotReadable({
+    description: 'Current form state including title, description, and all fields',
+    value: JSON.stringify(
+      {
+        id: form?.id || 'new form',
+        title: form?.title || '',
+        description: form?.description,
+        status: form?.status || 'draft',
+        slug: form?.slug,
+        fields: (form?.fields || []).map((f) => ({
+          type: f.type,
+          label: f.label,
+          placeholder: f.placeholder,
+          required: f.required,
+          options: f.options,
+          order: f.order,
+        })),
+      },
+      null,
+      2
+    ),
+  })
 
   // Tool: Update form title
   useFrontendTool({
@@ -194,10 +237,16 @@ export function useFormTools(config: FormToolsConfig) {
     description: 'Get a summary of the current form state',
     parameters: [],
     handler: async () => {
-      const current = getCurrentState()
+      const current = formRef.current
+      if (!current) {
+        return { error: 'No form loaded' }
+      }
       return {
+        id: current.id || 'new form',
         title: current.title,
         description: current.description || null,
+        status: current.status,
+        slug: current.slug || null,
         fieldCount: current.fields.length,
         fields: current.fields.map((f, i) => ({
           index: i,
@@ -208,4 +257,38 @@ export function useFormTools(config: FormToolsConfig) {
       }
     },
   })
+
+  // Tool: Save form (if onSave callback provided)
+  if (onSave) {
+    useFrontendTool({
+      name: 'saveForm',
+      description: 'Save the current form (saves title, description, and all fields)',
+      parameters: [],
+      handler: async () => {
+        const current = formRef.current
+        if (!current) {
+          throw new Error('Cannot save: no form loaded')
+        }
+        await onSave()
+        return `Form "${current.title}" saved successfully`
+      },
+    })
+  }
+
+  // Tool: Publish form (if onPublish callback provided)
+  if (onPublish) {
+    useFrontendTool({
+      name: 'publishForm',
+      description: 'Publish the form to make it publicly accessible with a shareable link',
+      parameters: [],
+      handler: async () => {
+        const current = formRef.current
+        if (!current) {
+          throw new Error('Cannot publish: no form loaded')
+        }
+        await onPublish()
+        return `Form "${current.title}" published successfully`
+      },
+    })
+  }
 }

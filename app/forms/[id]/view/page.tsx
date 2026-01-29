@@ -26,6 +26,7 @@ import { DeleteConfirmationDialog } from '@/components/forms/view/DeleteConfirma
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import type { FormData } from '@/components/ui/FormBuilder'
 import { buttonStyles, layoutStyles, flexStyles } from '@/theme'
+import { usePageAiTools } from './ai-tools'
 
 /**
  * Form view page - view published form details and submissions
@@ -158,6 +159,14 @@ export default function ViewFormPage() {
     setDeleteDialogOpen(false)
     setDeleteError(null)
   }
+
+  // Register AI tools for this page (ALWAYS call this hook, even during loading)
+  usePageAiTools({
+    form: form || undefined,
+    shareableLink,
+    onCopyLink: handleCopyLink,
+    onDelete: handleDeleteConfirm,
+  })
 
   if (isLoading) {
     return (

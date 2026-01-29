@@ -12,6 +12,7 @@ import { SubmissionGrid, type FieldDefinition, type Submission } from '@/compone
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { buttonStyles } from '@/theme'
+import { usePageAiTools } from './ai-tools'
 
 interface ApiField {
   id: string
@@ -128,6 +129,20 @@ export default function SubmissionsPage() {
     setRowsPerPage(newRowsPerPage)
     setPage(0)
   }
+
+  // Register AI tools for this page (unconditionally, but only meaningful when data is loaded)
+  usePageAiTools({
+    formId,
+    formTitle,
+    fields,
+    submissions: submissions.map((s) => ({
+      ...s,
+      submittedAt: typeof s.submittedAt === 'string' ? s.submittedAt : s.submittedAt.toISOString(),
+    })),
+    totalCount,
+    page,
+    rowsPerPage,
+  })
 
   return (
     <>

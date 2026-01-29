@@ -20,6 +20,7 @@ import { FormCard } from '@/components/forms/list/FormCard'
 import { PageToolbar } from '@/components/forms/list/PageToolbar'
 import Link from 'next/link'
 import { layoutStyles, flexStyles, buttonStyles } from '@/theme'
+import { usePageAiTools } from './ai-tools'
 
 type Form = {
   id: string
@@ -50,6 +51,15 @@ export default function FormsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<StatusFilter>('all')
+
+  // Register AI tools for this page
+  usePageAiTools({
+    forms,
+    currentFilter: filter,
+    counts,
+    onFilterChange: (f: string) => setFilter(f as StatusFilter),
+    onCreateForm: () => router.push('/forms/new'),
+  })
 
   useEffect(() => {
     const abortController = new AbortController()

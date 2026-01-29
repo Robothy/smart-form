@@ -10,11 +10,11 @@ import { Button } from '@/components/ui/Button'
 import { EditToolbar } from '@/components/forms/edit/EditToolbar'
 import { FormLoadingState } from '@/components/forms/edit/FormLoadingState'
 import { SuccessSnackbar } from '@/components/forms/edit/SuccessSnackbar'
-import { FormAssistant } from '@/components/forms/edit/FormAssistant'
 import { useFormLoader } from '@/lib/hooks/use-form-loader'
 import { useFormSave } from '@/lib/hooks/use-form-save'
 import { useFormPublish } from '@/lib/hooks/use-form-publish'
 import { flexStyles } from '@/theme'
+import { usePageAiTools } from './ai-tools'
 
 /**
  * Form edit page - edit an existing draft form
@@ -82,7 +82,20 @@ export default function EditFormPage() {
     clearPublishError()
   }
 
-  // Show loading or error state
+  // Register AI tools for this page (ALWAYS call this hook, even during loading)
+  // The hook handles null form gracefully
+  usePageAiTools({
+    form: form || undefined,
+    onUpdate: handleUpdate,
+    onSave: async () => {
+      const currentForm = editedForm || form
+      if (!currentForm) return
+      await handleSave({ title: currentForm.title, description: currentForm.description, fields: currentForm.fields })
+    },
+    onPublish: handlePublish,
+  })
+
+  // Show loading or error state (AFTER all hooks are called)
   const loadingState = <FormLoadingState isLoading={isLoading} error={loadError} form={form} />
   if (isLoading || loadError || !form) {
     return loadingState
@@ -148,9 +161,6 @@ export default function EditFormPage() {
       </Container>
 
       <SuccessSnackbar open={isSuccess} onClose={handleCloseSnackbar} />
-
-      {/* Add the FormAssistant popup */}
-      {!isPublished && editedForm && <FormAssistant form={editedForm} onUpdate={handleUpdate} />}
     </>
   )
 }
