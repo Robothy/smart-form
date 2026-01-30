@@ -195,10 +195,10 @@ import { Agent } from '@mastra/core/agent'
 import { MockMemory } from '@mastra/core/memory'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 
-const zhipuAI = createOpenAICompatible({
-  baseURL: process.env.DEEPSEEK_BASE_URL!,
-  apiKey: process.env.DEEPSEEK_API_KEY!,
-  name: 'zhipu'
+const llm = createOpenAICompatible({
+  baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL!,
+  apiKey: process.env.OPENAI_COMPATIBLE_API_KEY!,
+  name: 'openai-compatible'
 })
 
 export const formBuilderAgent = new Agent({
@@ -206,7 +206,7 @@ export const formBuilderAgent = new Agent({
   name: 'formBuilder',
   description: 'AI assistant for building forms',
   instructions: 'You are a helpful form building assistant.',
-  model: zhipuAI('deepseek-chat'),
+  model: llm(process.env.OPENAI_COMPATIBLE_MODEL_ID!),
   memory: new MockMemory({
     enableWorkingMemory: true,
     enableMessageHistory: true,
