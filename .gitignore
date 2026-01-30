@@ -32,6 +32,8 @@ lerna-debug.log*
 .env*.local
 .env
 .env.*
+# But allow example files
+!.env*.example
 
 # Vercel
 .vercel
