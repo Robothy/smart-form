@@ -8,6 +8,7 @@ import { FormLoadingState } from './FormLoadingState'
 import { FormErrorState } from './FormErrorState'
 import { FormSuccessState } from './FormSuccessState'
 import { buttonStyles, flexStyles } from '@/theme'
+import { usePageAiTools } from '@/app/forms/[id]/fill/ai-tools'
 
 export interface FormFillerProps {
   formId?: string
@@ -131,6 +132,24 @@ export function FormFiller({ formId, slug }: FormFillerProps) {
       setIsSubmitting(false)
     }
   }
+
+  // Register AI tools for this page (ALWAYS call this hook, even during loading/error/success)
+  // The hook handles null form gracefully
+  usePageAiTools({
+    form: form ? {
+      id: form.id,
+      title: form.title,
+      fields: form.fields,
+    } : undefined,
+    values: Object.fromEntries(
+      Object.entries(values).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v])
+    ) as Record<string, string>,
+    errors: fieldErrors,
+    onValueChange: (fieldId: string, value: string) => handleValueChange(fieldId, value),
+    onSubmit: async () => {
+      await handleSubmit(new Event('submit') as unknown as React.FormEvent)
+    },
+  })
 
   // Loading state
   if (isLoading) {
