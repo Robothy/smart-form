@@ -28,19 +28,16 @@ export interface FormEditContextConfig {
 
 /**
  * Hook that registers AI tools for form editing pages
- * Migrated from the original useFormTools hook
- * Adds saveForm and publishForm tools
+ * Simplified to a single updateForm tool + save/publish tools
  */
 export function useFormEditContext(config: FormEditContextConfig) {
   const { form, onUpdateForm, onSave, onPublish } = config
 
-  // Use a ref to track the latest form state synchronously
   const formRef = useRef(form)
   useEffect(() => {
     formRef.current = form
   }, [form])
 
-  // Share form state with the AI
   useCopilotReadable({
     description: 'Current form state including title, description, and all fields',
     value: JSON.stringify(
@@ -64,177 +61,94 @@ export function useFormEditContext(config: FormEditContextConfig) {
     ),
   })
 
-  // Tool: Update form title
   useFrontendTool({
-    name: 'updateFormTitle',
-    description: 'Update the title of the form',
+    name: 'updateForm',
+    description: 'Update the form. Set title/description and perform field operations using labels to identify fields. Operations: remove (by label), update (by label), add. Use existing field labels to target updates/removals.',
     parameters: [
+      { name: 'title', type: 'string', description: 'Form title', required: false },
+      { name: 'description', type: 'string', description: 'Form description', required: false },
       {
-        name: 'title',
-        type: 'string',
-        description: 'The new title for the form',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      const { title } = args as { title: string }
-      await onUpdateForm(() => ({ title }))
-      return `Form title updated to: ${title}`
-    },
-  })
-
-  // Tool: Update form description
-  useFrontendTool({
-    name: 'updateFormDescription',
-    description: 'Update the description of the form',
-    parameters: [
-      {
-        name: 'description',
-        type: 'string',
-        description: 'The new description for the form',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      const { description } = args as { description: string }
-      await onUpdateForm(() => ({ description }))
-      return `Form description updated`
-    },
-  })
-
-  // Tool: Add a new field
-  useFrontendTool({
-    name: 'addField',
-    description: 'Add a new field to the form',
-    parameters: [
-      {
-        name: 'type',
-        type: 'string',
-        description: 'The type of field (text, textarea, date, radio, checkbox)',
-        required: true,
-      },
-      {
-        name: 'label',
-        type: 'string',
-        description: 'The label for the field',
-        required: true,
-      },
-      {
-        name: 'placeholder',
-        type: 'string',
-        description: 'Optional placeholder text for the field',
-        required: false,
-      },
-      {
-        name: 'required',
-        type: 'boolean',
-        description: 'Whether the field is required',
-        required: false,
-      },
-      {
-        name: 'options',
+        name: 'operations',
         type: 'object[]',
-        description: 'Options for radio/checkbox fields (array of {label, value} objects)',
+        description: 'Field operations: {action: "remove", target: "label"} or {action: "update", target: "label", changes: {...}} or {action: "add", field: {...}}',
         required: false,
         attributes: [
-          { name: 'label', type: 'string' },
-          { name: 'value', type: 'string' },
+          { name: 'action', type: 'string' },
+          { name: 'target', type: 'string' },
+          { name: 'changes', type: 'object' },
+          { name: 'field', type: 'object' },
         ],
       },
     ],
     handler: async (args) => {
-      const { type, label, placeholder, required, options } = args as {
-        type: string
-        label: string
-        placeholder?: string
-        required?: boolean
-        options?: { label: string; value: string }[]
+      type Operation =
+        | { action: 'remove'; target: string }
+        | { action: 'update'; target: string; changes?: Partial<Pick<FormFieldData, 'label' | 'placeholder' | 'required' | 'type' | 'options'>> }
+        | { action: 'add'; field: Omit<FormFieldData, 'id' | 'order'> }
+
+      const { title, description, operations } = args as {
+        title?: string
+        description?: string
+        operations?: Operation[]
       }
-      await onUpdateForm((current) => {
-        const newField: FormFieldData = {
-          type: type as FormFieldType,
-          label,
-          placeholder,
-          required: required ?? false,
-          options,
-          order: current.fields.length,
-        }
-        return { fields: [...current.fields, newField] }
-      })
-      return `Added new ${type} field: ${label}`
-    },
-  })
 
-  // Tool: Update an existing field
-  useFrontendTool({
-    name: 'updateField',
-    description: 'Update an existing field in the form',
-    parameters: [
-      {
-        name: 'fieldIndex',
-        type: 'number',
-        description: 'The index of the field to update (0-based)',
-        required: true,
-      },
-      {
-        name: 'updates',
-        type: 'object',
-        description: 'The updates to apply to the field',
-        required: true,
-        attributes: [
-          { name: 'label', type: 'string' },
-          { name: 'placeholder', type: 'string' },
-          { name: 'required', type: 'boolean' },
-          { name: 'type', type: 'string' },
-        ],
-      },
-    ],
-    handler: async (args) => {
-      const { fieldIndex, updates } = args as {
-        fieldIndex: number
-        updates: Partial<Pick<FormFieldData, 'label' | 'placeholder' | 'required' | 'type'>>
+      await onUpdateForm((current) => {
+        let fields = [...current.fields]
+        const updates: { title?: string; description?: string; fields?: FormFieldData[] } = {}
+
+        if (title !== undefined) updates.title = title
+        if (description !== undefined) updates.description = description
+
+        if (operations?.length) {
+          for (const op of operations) {
+            switch (op.action) {
+              case 'remove': {
+                const idx = fields.findIndex((f) => f.label === op.target)
+                if (idx >= 0) fields.splice(idx, 1)
+                break
+              }
+              case 'update': {
+                const idx = fields.findIndex((f) => f.label === op.target)
+                if (idx >= 0 && op.changes) {
+                  fields[idx] = { ...fields[idx], ...op.changes }
+                }
+                break
+              }
+              case 'add': {
+                const newField: FormFieldData = {
+                  ...op.field,
+                  id: crypto.randomUUID(),
+                  order: fields.length,
+                }
+                fields.push(newField)
+                break
+              }
+            }
+          }
+        }
+
+        updates.fields = fields
+        return updates
+      })
+
+      const parts: string[] = []
+      if (title !== undefined) parts.push(`title`)
+      if (description !== undefined) parts.push(`description`)
+      if (operations?.length) {
+        const removes = operations.filter((o) => o.action === 'remove').length
+        const updates = operations.filter((o) => o.action === 'update').length
+        const adds = operations.filter((o) => o.action === 'add').length
+        if (removes) parts.push(`${removes} removed`)
+        if (updates) parts.push(`${updates} updated`)
+        if (adds) parts.push(`${adds} added`)
       }
-      await onUpdateForm((current) => {
-        if (fieldIndex < 0 || fieldIndex >= current.fields.length) {
-          throw new Error(`Invalid field index: ${fieldIndex}`)
-        }
-        const updatedFields = [...current.fields]
-        updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], ...updates }
-        return { fields: updatedFields }
-      })
-      return `Updated field at index ${fieldIndex}`
+      return `Updated: ${parts.join(', ') || 'nothing'}`
     },
   })
 
-  // Tool: Remove a field
   useFrontendTool({
-    name: 'removeField',
-    description: 'Remove a field from the form',
-    parameters: [
-      {
-        name: 'fieldIndex',
-        type: 'number',
-        description: 'The index of the field to remove (0-based)',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      const { fieldIndex } = args as { fieldIndex: number }
-      await onUpdateForm((current) => {
-        if (fieldIndex < 0 || fieldIndex >= current.fields.length) {
-          throw new Error(`Invalid field index: ${fieldIndex}`)
-        }
-        const updatedFields = current.fields.filter((_, i) => i !== fieldIndex)
-        return { fields: updatedFields }
-      })
-      return `Removed field at index ${fieldIndex}`
-    },
-  })
-
-  // Tool: Get form summary
-  useFrontendTool({
-    name: 'getFormSummary',
-    description: 'Get a summary of the current form state',
+    name: 'getForm',
+    description: 'Get the current form structure including title, description, and all fields with their labels and types',
     parameters: [],
     handler: async () => {
       const current = formRef.current
@@ -242,52 +156,43 @@ export function useFormEditContext(config: FormEditContextConfig) {
         return { error: 'No form loaded' }
       }
       return {
-        id: current.id || 'new form',
         title: current.title,
         description: current.description || null,
         status: current.status,
-        slug: current.slug || null,
-        fieldCount: current.fields.length,
-        fields: current.fields.map((f, i) => ({
-          index: i,
+        fields: current.fields.map((f) => ({
+          label: f.label,
           type: f.type,
-          label: f.label || '(Untitled)',
           required: f.required,
+          placeholder: f.placeholder,
         })),
       }
     },
   })
 
-  // Tool: Save form (if onSave callback provided)
   if (onSave) {
     useFrontendTool({
       name: 'saveForm',
-      description: 'Save the current form (saves title, description, and all fields)',
+      description: 'Save the current form',
       parameters: [],
       handler: async () => {
         const current = formRef.current
-        if (!current) {
-          throw new Error('Cannot save: no form loaded')
-        }
+        if (!current) throw new Error('Cannot save: no form loaded')
         await onSave()
-        return `Form "${current.title}" saved successfully`
+        return `Form "${current.title}" saved`
       },
     })
   }
 
-  // Tool: Publish form (if onPublish callback provided)
   if (onPublish) {
     useFrontendTool({
       name: 'publishForm',
-      description: 'Publish the form to make it publicly accessible with a shareable link',
+      description: 'Publish the form to make it publicly accessible',
       parameters: [],
       handler: async () => {
         const current = formRef.current
-        if (!current) {
-          throw new Error('Cannot publish: no form loaded')
-        }
+        if (!current) throw new Error('Cannot publish: no form loaded')
         await onPublish()
-        return `Form "${current.title}" published successfully`
+        return `Form "${current.title}" published`
       },
     })
   }
