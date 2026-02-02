@@ -31,6 +31,7 @@
     "@libsql/client": "^0.10.0",
     "@mastra/core": "^1.0.4",
     "@mastra/libsql": "^1.0.0",
+    "@mastra/loggers": "^1.0.1",
     "@mastra/memory": "^1.0.0",
     "@mastra/observability": "^1.0.0",
     "@mui/icons-material": "^6.5.0",
