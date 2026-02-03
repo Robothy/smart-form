@@ -1,5 +1,6 @@
 import { Mastra } from '@mastra/core/mastra'
 import { LibSQLStore } from '@mastra/libsql'
+import { PinoLogger } from '@mastra/loggers'
 import {
   Observability,
   DefaultExporter,
@@ -16,6 +17,8 @@ try {
 } catch {
   // Directory already exists or creation failed (will be caught by LibSQLStore)
 }
+
+const logLevel = process.env.MASTRA_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error' || 'info'
 
 export const mastra = new Mastra({
   agents: {
@@ -38,4 +41,5 @@ export const mastra = new Mastra({
     id: 'mastra-store',
     url: 'file:./.mastra/data/mastra.db',
   }),
+  logger: new PinoLogger({ level: logLevel }),
 })
