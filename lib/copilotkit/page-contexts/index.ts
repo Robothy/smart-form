@@ -1,6 +1,10 @@
 /**
  * Page-specific AI context hooks for CopilotKit integration
  *
+ * Base utilities:
+ * - useContextValues: Shared ref management hook
+ * - useBaseContext: Signals tools are ready
+ *
  * Each hook provides AI tools for a specific page in the application:
  * - useFormListContext: Form list page (/forms)
  * - useFormEditContext: Form edit pages (/forms/new, /forms/[id]/edit)
@@ -10,6 +14,7 @@
  * - useGlobalNavigation: Global navigation (all pages)
  */
 
+export { useContextValues, useBaseContext } from './base-context'
 export { useGlobalNavigation } from './global-navigation-context'
 export { useFormListContext, type FormListConfig } from './form-list-context'
 export { useFormEditContext, type FormEditContextConfig } from './form-edit-context'

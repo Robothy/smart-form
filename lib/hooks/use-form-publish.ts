@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { FormData } from '@/components/ui/FormBuilder'
 
 interface UseFormPublishResult {
-  publish: () => Promise<boolean>
+  publish: () => Promise<{ id: string; title: string; status: string; slug?: string | null }>
   isPublishing: boolean
   error: string | null
   clearError: () => void
@@ -16,10 +16,10 @@ export function useFormPublish(formId: string, form: FormData | null): UseFormPu
   const [isPublishing, setIsPublishing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const publish = async (): Promise<boolean> => {
+  const publish = async (): Promise<{ id: string; title: string; status: string; slug?: string | null }> => {
     if (!form || form.fields.length < 1) {
       setError('Add at least one field before publishing')
-      return false
+      throw new Error('Add at least one field before publishing')
     }
 
     setIsPublishing(true)
@@ -34,14 +34,20 @@ export function useFormPublish(formId: string, form: FormData | null): UseFormPu
 
       if (result.success) {
         router.push(`/forms/${formId}/view`)
-        return true
+        // Return the published form data
+        return {
+          id: result.data.id,
+          title: result.data.title,
+          status: result.data.status,
+          slug: result.data.slug,
+        }
       } else {
         setError(result.error?.message || 'Failed to publish form')
-        return false
+        throw new Error(result.error?.message || 'Failed to publish form')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to publish form')
-      return false
+      throw err
     } finally {
       setIsPublishing(false)
     }

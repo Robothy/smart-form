@@ -56,9 +56,10 @@ export default function EditFormPage() {
   const handleSave = async (data: Omit<FormData, 'id' | 'status'>) => {
     setError(null)
     clearPublishError()
-    await save(data)
+    const result = await save(data)
     // Refresh edited form from server after successful save
     // The useFormLoader hook will refetch the form
+    return result
   }
 
   const handleUpdate = (updated: FormData) => {
@@ -69,7 +70,7 @@ export default function EditFormPage() {
   const handlePublish = async () => {
     setError(null)
     clearSaveError()
-    await publish()
+    return await publish()
   }
 
   const handleCloseSnackbar = () => {
@@ -89,10 +90,12 @@ export default function EditFormPage() {
     onUpdate: handleUpdate,
     onSave: async () => {
       const currentForm = editedForm || form
-      if (!currentForm) return
-      await handleSave({ title: currentForm.title, description: currentForm.description, fields: currentForm.fields })
+      if (!currentForm) throw new Error('No form loaded')
+      return await handleSave({ title: currentForm.title, description: currentForm.description, fields: currentForm.fields })
     },
-    onPublish: handlePublish,
+    onPublish: async () => {
+      return await handlePublish()
+    },
   })
 
   // Show loading or error state (AFTER all hooks are called)

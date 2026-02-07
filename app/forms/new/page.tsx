@@ -26,7 +26,7 @@ export default function NewFormPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
 
-  const handleSave = async (data: Omit<FormData, 'id' | 'status'>) => {
+  const handleSave = async (data: Omit<FormData, 'id' | 'status'>): Promise<{ id: string; title: string; status: string; slug?: string | null }> => {
     setIsLoading(true)
     setError(null)
 
@@ -49,9 +49,21 @@ export default function NewFormPage() {
         setTimeout(() => {
           router.push(`/forms/${result.data.id}/edit`)
         }, 1500)
+
+        // Return saved form data for AI tools
+        return {
+          id: result.data.id,
+          title: result.data.title,
+          status: result.data.status,
+          slug: result.data.slug,
+        }
       }
+
+      // If we get here, something is wrong with the response
+      throw new Error('Failed to create form: Invalid response')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create form')
+      throw err
     } finally {
       setIsLoading(false)
     }
@@ -66,7 +78,7 @@ export default function NewFormPage() {
     form,
     onUpdate: handleUpdate,
     onSave: async () => {
-      await handleSave({ title: form.title, description: form.description, fields: form.fields })
+      return await handleSave({ title: form.title, description: form.description, fields: form.fields })
     },
   })
 
