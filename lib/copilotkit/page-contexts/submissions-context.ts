@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
+import { usePageToolsReady } from '../page-tools-ready'
 
 export interface FieldDefinition {
   id: string
@@ -351,4 +352,7 @@ export function useSubmissionsContext(config: SubmissionsContextConfig) {
       }
     },
   })
+
+  // Signal that all tools for this page are registered
+  usePageToolsReady()
 }

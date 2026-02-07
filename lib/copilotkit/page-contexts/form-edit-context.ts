@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
+import { usePageToolsReady } from '../page-tools-ready'
 
 export interface FormEditContextConfig {
   form?: {
@@ -196,4 +197,7 @@ export function useFormEditContext(config: FormEditContextConfig) {
       },
     })
   }
+
+  // Signal that all tools for this page are registered
+  usePageToolsReady()
 }

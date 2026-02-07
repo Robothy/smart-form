@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
+import { TOOLS_READY_EVENT } from '../page-tools-ready'
 
 export interface PageInfo {
   path: string
@@ -10,7 +11,6 @@ export interface PageInfo {
   category: 'forms' | 'home' | 'other'
 }
 
-// 应用中所有可访问的页面
 const ALL_PAGES: PageInfo[] = [
   {
     path: '/',
@@ -33,16 +33,14 @@ const ALL_PAGES: PageInfo[] = [
 ]
 
 /**
- * 全局页面感知和导航钩子
- * 提供页面感知和统一的导航功能
+ * Global page awareness and navigation hook.
+ * Provides page awareness and unified navigation functionality.
  */
 export function useGlobalNavigation() {
   const pathname = usePathname()
   const router = useRouter()
 
-  // 获取当前页面信息
   const getCurrentPage = (): PageInfo => {
-    // 动态路由匹配
     const editMatch = pathname.match(/^\/forms\/([^/]+)\/edit$/)
     if (editMatch) {
       return {
@@ -108,8 +106,6 @@ export function useGlobalNavigation() {
 
   const currentPage = getCurrentPage()
 
-  // 分享当前页面信息给 AI（自动随页面跳转更新）
-  // AI 无需调用工具即可感知当前页面
   useCopilotReadable({
     description: 'Current application page and available pages. This context automatically updates when navigating.',
     value: JSON.stringify({
@@ -124,7 +120,6 @@ export function useGlobalNavigation() {
     }),
   })
 
-  // 工具: 列出所有可访问的页面
   useFrontendTool({
     name: 'listPages',
     description: 'List all pages that can be navigated to',
@@ -140,10 +135,10 @@ export function useGlobalNavigation() {
     },
   })
 
-  // 工具: 统一导航工具
+  // Tool: Unified navigation tool
   useFrontendTool({
     name: 'navigate',
-    description: 'Navigate to a different page. Supports multiple navigation modes through parameters.',
+    description: 'Navigate to a different page. Supports multiple navigation modes through parameters. All navigation operations wait for the target page tools to be ready before returning.',
     parameters: [
       {
         name: 'path',
@@ -169,38 +164,54 @@ export function useGlobalNavigation() {
         description: 'Set to true to go back to the previous page',
         required: false,
       },
-      {
-        name: 'refresh',
-        type: 'boolean',
-        description: 'Set to true to refresh the current page',
-        required: false,
-      },
     ],
     handler: async (args) => {
-      const { path, formId, action, back, refresh } = args as {
+      const { path, formId, action, back } = args as {
         path?: string
         formId?: string
         action?: string
         back?: boolean
-        refresh?: boolean
       }
 
-      // 刷新当前页面
-      if (refresh) {
-        router.refresh()
-        return 'Page refreshed'
+      // Common function to navigate and wait for tools to be ready
+      const navigateAndWait = (navigateFn: () => void, actionDesc: string): Promise<string> => {
+        return new Promise<string>((resolve) => {
+          navigateFn()
+
+          let resolved = false
+          const timeout = setTimeout(() => {
+            if (resolved) return
+            resolved = true
+            window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+            resolve(`${actionDesc} (timeout, tools may still be loading)`)
+          }, 15000)
+
+          const handleToolsReady = () => {
+            if (resolved) return
+            resolved = true
+            clearTimeout(timeout)
+            window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+            resolve(`${actionDesc}, tools ready`)
+          }
+
+          window.addEventListener(TOOLS_READY_EVENT, handleToolsReady)
+        })
       }
 
-      // 返回上一页
+      // Navigate back (waits for tools registration)
       if (back) {
+        const currentPageName = currentPage.name
+        const currentPath = pathname
         if (typeof window !== 'undefined' && window.history.length > 1) {
-          router.back()
-          return 'Navigating back'
+          return navigateAndWait(() => router.back(), 'Navigating back')
         }
-        return 'Cannot go back - no previous page'
+        return `Cannot go back - no previous page in history. Currently on "${currentPageName}" at ${currentPath}`
       }
 
-      // 跳转到指定表单 (formId + action)
+      // Calculate target path
+      let targetPath = ''
+      let actionName = ''
+
       if (formId && action) {
         const validActions = ['view', 'edit', 'fill', 'submissions']
         if (!validActions.includes(action)) {
@@ -208,20 +219,19 @@ export function useGlobalNavigation() {
             `Invalid action: ${action}. Valid actions are: ${validActions.join(', ')}`
           )
         }
-        const targetPath = `/forms/${formId}/${action}`
-        router.push(targetPath)
-        return `Navigating to ${action} form ${formId}`
+        targetPath = `/forms/${formId}/${action}`
+        actionName = `${action} form ${formId}`
+      } else if (path) {
+        targetPath = path
+        actionName = path
+      } else {
+        throw new Error(
+          'Must provide one of: path, formId+action, or back=true'
+        )
       }
 
-      // 跳转到指定路径
-      if (path) {
-        router.push(path)
-        return `Navigating to ${path}`
-      }
-
-      throw new Error(
-        'Must provide one of: path, formId+action, back=true, or refresh=true'
-      )
+      // Execute navigation and wait for tools registration
+      return navigateAndWait(() => router.push(targetPath), `Navigated to ${actionName}`)
     },
   })
 }

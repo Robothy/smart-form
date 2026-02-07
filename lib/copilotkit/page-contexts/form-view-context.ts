@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
 import type { FormFieldData } from '@/components/forms/edit/fieldEditors'
+import { usePageToolsReady } from '../page-tools-ready'
 
 export interface FormViewContextConfig {
   form?: {
@@ -186,4 +187,7 @@ export function useFormViewContext(config: FormViewContextConfig) {
       return 'Navigating to forms list'
     },
   })
+
+  // Signal that all tools for this page are registered
+  usePageToolsReady()
 }

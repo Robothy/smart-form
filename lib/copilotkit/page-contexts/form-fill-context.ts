@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData } from '@/components/forms/fill/FormFieldRenderer'
+import { usePageToolsReady } from '../page-tools-ready'
 
 export interface FormFillContextConfig {
   form?: {
@@ -248,4 +249,7 @@ export function useFormFillContext(config: FormFillContextConfig) {
       }
     },
   })
+
+  // Signal that all tools for this page are registered
+  usePageToolsReady()
 }

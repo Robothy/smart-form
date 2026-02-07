@@ -3,6 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
+import { usePageToolsReady } from '../page-tools-ready'
 
 export interface FormListConfig {
   forms: Array<{
@@ -123,44 +124,6 @@ export function useFormListContext(config: FormListConfig) {
     },
   })
 
-  // Tool: Navigate to a specific form
-  useFrontendTool({
-    name: 'navigateToForm',
-    description: 'Navigate to a specific form by ID (goes to edit for drafts, view for published)',
-    parameters: [
-      {
-        name: 'formId',
-        type: 'string',
-        description: 'The ID of the form to navigate to',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      const { formId } = args as { formId: string }
-      const form = formsRef.current.find((f) => f.id === formId)
-
-      if (!form) {
-        throw new Error(`Form with ID ${formId} not found`)
-      }
-
-      const targetPath =
-        form.status === 'published' ? `/forms/${formId}/view` : `/forms/${formId}/edit`
-      router.push(targetPath)
-      return `Navigating to "${form.title}" (${form.status})`
-    },
-  })
-
-  // Tool: Create a new form
-  useFrontendTool({
-    name: 'createForm',
-    description: 'Create a new blank form and navigate to the edit page',
-    parameters: [],
-    handler: async () => {
-      onCreateForm()
-      return 'Navigating to create new form...'
-    },
-  })
-
   // Tool: Get forms summary
   useFrontendTool({
     name: 'getFormsSummary',
@@ -184,4 +147,7 @@ export function useFormListContext(config: FormListConfig) {
       }
     },
   })
+
+  // Signal that all tools for this page are registered
+  usePageToolsReady()
 }
