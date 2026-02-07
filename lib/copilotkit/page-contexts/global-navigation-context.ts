@@ -11,7 +11,6 @@ export interface PageInfo {
   category: 'forms' | 'home' | 'other'
 }
 
-// 应用中所有可访问的页面
 const ALL_PAGES: PageInfo[] = [
   {
     path: '/',
@@ -34,16 +33,14 @@ const ALL_PAGES: PageInfo[] = [
 ]
 
 /**
- * 全局页面感知和导航钩子
- * 提供页面感知和统一的导航功能
+ * Global page awareness and navigation hook.
+ * Provides page awareness and unified navigation functionality.
  */
 export function useGlobalNavigation() {
   const pathname = usePathname()
   const router = useRouter()
 
-  // 获取当前页面信息
   const getCurrentPage = (): PageInfo => {
-    // 动态路由匹配
     const editMatch = pathname.match(/^\/forms\/([^/]+)\/edit$/)
     if (editMatch) {
       return {
@@ -109,8 +106,6 @@ export function useGlobalNavigation() {
 
   const currentPage = getCurrentPage()
 
-  // 分享当前页面信息给 AI（自动随页面跳转更新）
-  // AI 无需调用工具即可感知当前页面
   useCopilotReadable({
     description: 'Current application page and available pages. This context automatically updates when navigating.',
     value: JSON.stringify({
@@ -125,7 +120,6 @@ export function useGlobalNavigation() {
     }),
   })
 
-  // 工具: 列出所有可访问的页面
   useFrontendTool({
     name: 'listPages',
     description: 'List all pages that can be navigated to',
