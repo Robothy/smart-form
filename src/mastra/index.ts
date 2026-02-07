@@ -1,14 +1,12 @@
 import { Mastra } from '@mastra/core/mastra'
 import { LibSQLStore } from '@mastra/libsql'
 import { PinoLogger } from '@mastra/loggers'
-import {
-  Observability,
-  DefaultExporter,
-  SensitiveDataFilter,
-} from '@mastra/observability'
+import { Observability, DefaultExporter, SensitiveDataFilter } from '@mastra/observability'
 import { formBuilderAgent } from './agents/form-builder'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { OtelExporter } from '@mastra/otel-exporter'
+import { ObservabilityExporter } from '@mastra/core/observability'
 
 // Ensure data directory exists before initializing Mastra
 const dataDir = join(process.cwd(), '.mastra', 'data')
@@ -18,7 +16,26 @@ try {
   // Directory already exists or creation failed (will be caught by LibSQLStore)
 }
 
-const logLevel = process.env.MASTRA_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error' || 'info'
+const logLevel = (process.env.MASTRA_LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'info'
+
+// Build exporters array - only include OtelExporter if OTEL_ENDPOINT is provided
+const exporters: Array<ObservabilityExporter> = [new DefaultExporter()]
+if (process.env.OTEL_ENDPOINT) {
+  exporters.push(
+    new OtelExporter({
+      logLevel: logLevel,
+      provider: {
+        custom: {
+          endpoint: process.env.OTEL_ENDPOINT,
+          protocol: 'http/json',
+        },
+      },
+      resourceAttributes: {
+        'service.name': 'smart-form',
+      },
+    })
+  )
+}
 
 export const mastra = new Mastra({
   agents: {
@@ -28,12 +45,9 @@ export const mastra = new Mastra({
     configs: {
       default: {
         serviceName: 'mastra',
-        exporters: [
-          new DefaultExporter(),
-        ],
-        spanOutputProcessors: [
-          new SensitiveDataFilter(),
-        ],
+        exporters,
+        includeInternalSpans: true,
+        spanOutputProcessors: [new SensitiveDataFilter()],
       },
     },
   }),
