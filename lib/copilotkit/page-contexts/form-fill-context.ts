@@ -1,9 +1,8 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData } from '@/components/forms/fill/FormFieldRenderer'
-import { usePageToolsReady } from '../page-tools-ready'
+import { useContextValues, useBaseContext } from './base-context'
 
 export interface FormFillContextConfig {
   form?: {
@@ -25,16 +24,8 @@ export function useFormFillContext(config: FormFillContextConfig) {
   const { form, values, errors, onValueChange, onSubmit } = config
 
   // Use refs for mutable state to avoid closure staleness
-  const valuesRef = useRef(values)
-  const errorsRef = useRef(errors)
-
-  useEffect(() => {
-    valuesRef.current = values
-  }, [values])
-
-  useEffect(() => {
-    errorsRef.current = errors
-  }, [errors])
+  const valuesRef = useContextValues(values)
+  const errorsRef = useContextValues(errors)
 
   // Share form state with AI
   useCopilotReadable({
@@ -251,5 +242,5 @@ export function useFormFillContext(config: FormFillContextConfig) {
   })
 
   // Signal that all tools for this page are registered
-  usePageToolsReady()
+  useBaseContext()
 }

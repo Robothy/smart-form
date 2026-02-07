@@ -1,10 +1,9 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
 import type { FormFieldData } from '@/components/forms/edit/fieldEditors'
-import { usePageToolsReady } from '../page-tools-ready'
+import { useContextValues, useBaseContext } from './base-context'
 
 export interface FormViewContextConfig {
   form?: {
@@ -29,10 +28,7 @@ export function useFormViewContext(config: FormViewContextConfig) {
   const router = useRouter()
 
   // Use a ref to track the latest form state
-  const formRef = useRef(form)
-  useEffect(() => {
-    formRef.current = form
-  }, [form])
+  const formRef = useContextValues(form)
 
   // Share form state with AI
   useCopilotReadable({
@@ -189,5 +185,5 @@ export function useFormViewContext(config: FormViewContextConfig) {
   })
 
   // Signal that all tools for this page are registered
-  usePageToolsReady()
+  useBaseContext()
 }

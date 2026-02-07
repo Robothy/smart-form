@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { FormData } from '@/components/ui/FormBuilder'
 
 interface UseFormSaveResult {
-  save: (data: Omit<FormData, 'id' | 'status'>) => Promise<void>
+  save: (data: Omit<FormData, 'id' | 'status'>) => Promise<{ id: string; title: string; status: string; slug?: string | null }>
   isSaving: boolean
   isSuccess: boolean
   error: string | null
@@ -33,12 +33,22 @@ export function useFormSave(formId: string): UseFormSaveResult {
         throw new Error(errorData.error?.message || 'Failed to update form')
       }
 
+      const result = await response.json()
       setIsSuccess(true)
       setTimeout(() => {
         setIsSuccess(false)
       }, 2000)
+
+      // Return the saved form data
+      return {
+        id: result.data.id,
+        title: result.data.title,
+        status: result.data.status,
+        slug: result.data.slug,
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update form')
+      throw err
     } finally {
       setIsSaving(false)
     }

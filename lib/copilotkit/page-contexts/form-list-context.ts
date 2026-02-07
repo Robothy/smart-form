@@ -1,9 +1,8 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
-import { usePageToolsReady } from '../page-tools-ready'
+import { useContextValues, useBaseContext } from './base-context'
 
 export interface FormListConfig {
   forms: Array<{
@@ -34,21 +33,9 @@ export function useFormListContext(config: FormListConfig) {
   const router = useRouter()
 
   // Use refs for mutable state to avoid closure staleness
-  const formsRef = useRef(forms)
-  const countsRef = useRef(counts)
-  const currentFilterRef = useRef(currentFilter)
-
-  useEffect(() => {
-    formsRef.current = forms
-  }, [forms])
-
-  useEffect(() => {
-    countsRef.current = counts
-  }, [counts])
-
-  useEffect(() => {
-    currentFilterRef.current = currentFilter
-  }, [currentFilter])
+  const formsRef = useContextValues(forms)
+  const countsRef = useContextValues(counts)
+  const currentFilterRef = useContextValues(currentFilter)
 
   // Share current page state with AI
   useCopilotReadable({
@@ -149,5 +136,5 @@ export function useFormListContext(config: FormListConfig) {
   })
 
   // Signal that all tools for this page are registered
-  usePageToolsReady()
+  useBaseContext()
 }

@@ -1,9 +1,8 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
-import { usePageToolsReady } from '../page-tools-ready'
+import { useContextValues, useBaseContext } from './base-context'
 
 export interface FieldDefinition {
   id: string
@@ -49,21 +48,9 @@ export function useSubmissionsContext(config: SubmissionsContextConfig) {
   const router = useRouter()
 
   // Use refs for mutable state
-  const submissionsRef = useRef(submissions)
-  const fieldsRef = useRef(fields)
-  const totalCountRef = useRef(totalCount)
-
-  useEffect(() => {
-    submissionsRef.current = submissions
-  }, [submissions])
-
-  useEffect(() => {
-    fieldsRef.current = fields
-  }, [fields])
-
-  useEffect(() => {
-    totalCountRef.current = totalCount
-  }, [totalCount])
+  const submissionsRef = useContextValues(submissions)
+  const fieldsRef = useContextValues(fields)
+  const totalCountRef = useContextValues(totalCount)
 
   // Share submissions state with AI
   useCopilotReadable({
@@ -354,5 +341,5 @@ export function useSubmissionsContext(config: SubmissionsContextConfig) {
   })
 
   // Signal that all tools for this page are registered
-  usePageToolsReady()
+  useBaseContext()
 }

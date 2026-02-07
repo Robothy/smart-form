@@ -1,9 +1,8 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
-import { usePageToolsReady } from '../page-tools-ready'
+import { useContextValues, useBaseContext } from './base-context'
 
 export interface FormEditContextConfig {
   form?: {
@@ -23,8 +22,8 @@ export interface FormEditContextConfig {
           fields: FormFieldData[]
         }) => { title?: string; description?: string; fields?: FormFieldData[] })
   ) => void | Promise<void>
-  onSave?: () => Promise<void>
-  onPublish?: () => Promise<void>
+  onSave?: () => Promise<{ id: string; title: string; status: string; slug?: string | null }>
+  onPublish?: () => Promise<{ id: string; title: string; status: string; slug?: string | null }>
 }
 
 /**
@@ -34,10 +33,7 @@ export interface FormEditContextConfig {
 export function useFormEditContext(config: FormEditContextConfig) {
   const { form, onUpdateForm, onSave, onPublish } = config
 
-  const formRef = useRef(form)
-  useEffect(() => {
-    formRef.current = form
-  }, [form])
+  const formRef = useContextValues(form)
 
   useCopilotReadable({
     description: 'Current form state including title, description, and all fields',
@@ -149,7 +145,7 @@ export function useFormEditContext(config: FormEditContextConfig) {
 
   useFrontendTool({
     name: 'getForm',
-    description: 'Get the current form structure including title, description, and all fields with their labels and types',
+    description: 'Get the current form structure including title, description, and all fields with their labels, types, options (for radio/checkbox), and order',
     parameters: [],
     handler: async () => {
       const current = formRef.current
@@ -160,11 +156,14 @@ export function useFormEditContext(config: FormEditContextConfig) {
         title: current.title,
         description: current.description || null,
         status: current.status,
+        slug: current.slug,
         fields: current.fields.map((f) => ({
           label: f.label,
           type: f.type,
           required: f.required,
           placeholder: f.placeholder,
+          options: f.options,
+          order: f.order,
         })),
       }
     },
@@ -173,13 +172,13 @@ export function useFormEditContext(config: FormEditContextConfig) {
   if (onSave) {
     useFrontendTool({
       name: 'saveForm',
-      description: 'Save the current form',
+      description: 'Save the current form. Returns the form id and title.',
       parameters: [],
       handler: async () => {
         const current = formRef.current
         if (!current) throw new Error('Cannot save: no form loaded')
-        await onSave()
-        return `Form "${current.title}" saved`
+        const result = await onSave()
+        return `Form ${result.id} (${result.title}) saved`
       },
     })
   }
@@ -187,17 +186,17 @@ export function useFormEditContext(config: FormEditContextConfig) {
   if (onPublish) {
     useFrontendTool({
       name: 'publishForm',
-      description: 'Publish the form to make it publicly accessible',
+      description: 'Publish the form to make it publicly accessible. Returns the form id and title.',
       parameters: [],
       handler: async () => {
         const current = formRef.current
         if (!current) throw new Error('Cannot publish: no form loaded')
-        await onPublish()
-        return `Form "${current.title}" published`
+        const result = await onPublish()
+        return `Form ${result.id} (${result.title}) published`
       },
     })
   }
 
   // Signal that all tools for this page are registered
-  usePageToolsReady()
+  useBaseContext()
 }

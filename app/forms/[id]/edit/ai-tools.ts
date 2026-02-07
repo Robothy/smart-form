@@ -11,8 +11,8 @@ import type { FormData } from '@/components/ui/FormBuilder'
 export function usePageAiTools(config: {
   form?: FormData
   onUpdate: (form: FormData) => void
-  onSave: () => Promise<void>
-  onPublish: () => Promise<void>
+  onSave: () => Promise<{ id: string; title: string; status: string; slug?: string | null }>
+  onPublish: () => Promise<{ id: string; title: string; status: string; slug?: string | null }>
 }) {
   useFormEditContext({
     form: config.form ? {
