@@ -34,12 +34,12 @@ export function useFormPublish(formId: string, form: FormData | null): UseFormPu
 
       if (result.success) {
         // Navigation is handled by the caller (AI tool or page component)
-        // Return the published form data
+        // Return the published form data (ensure all values are primitives)
         return {
-          id: result.data.id,
-          title: result.data.title,
-          status: result.data.status,
-          slug: result.data.slug,
+          id: String(result.data.id),
+          title: String(result.data.title),
+          status: String(result.data.status),
+          slug: result.data.slug ? String(result.data.slug) : null,
         }
       } else {
         setError(result.error?.message || 'Failed to publish form')

@@ -68,3 +68,33 @@ export async function navigateAndWait(
     window.addEventListener(TOOLS_READY_EVENT, handleToolsReady)
   })
 }
+
+/**
+ * Wait for page tools to be ready after a state change (e.g., save triggering re-render).
+ * This should be used by AI tools that cause new tools to be registered without navigation.
+ *
+ * @param actionDesc - Description of the action for the return message
+ * @param timeout - Timeout in milliseconds (default 5000)
+ * @returns Promise that resolves when tools are ready or timeout occurs
+ */
+export function waitForToolsReady(actionDesc: string, timeout = 5000): Promise<string> {
+  return new Promise<string>((resolve) => {
+    let resolved = false
+    const timeoutId = setTimeout(() => {
+      if (resolved) return
+      resolved = true
+      window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+      resolve(`${actionDesc} (timeout, tools may still be loading)`)
+    }, timeout)
+
+    const handleToolsReady = () => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(timeoutId)
+      window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+      resolve(`${actionDesc}, tools ready`)
+    }
+
+    window.addEventListener(TOOLS_READY_EVENT, handleToolsReady)
+  })
+}

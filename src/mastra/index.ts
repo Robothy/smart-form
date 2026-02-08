@@ -23,7 +23,6 @@ const exporters: Array<ObservabilityExporter> = [new DefaultExporter()]
 if (process.env.OTEL_ENDPOINT) {
   exporters.push(
     new OtelExporter({
-      logLevel: logLevel,
       provider: {
         custom: {
           endpoint: process.env.OTEL_ENDPOINT,
