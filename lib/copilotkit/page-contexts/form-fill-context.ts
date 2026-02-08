@@ -48,89 +48,75 @@ export function useFormFillContext(config: FormFillContextConfig) {
     }),
   })
 
-  // Tool: Set field value
+  // Tool: Set form values
   useFrontendTool({
-    name: 'setFieldValue',
-    description: 'Set the value of a specific form field by field label',
+    name: 'setFormValues',
+    description: 'Set all form field values at once. Pass an object mapping field IDs to values.',
     parameters: [
       {
-        name: 'fieldLabel',
-        type: 'string',
-        description: 'The label of the field to set',
-        required: true,
-      },
-      {
-        name: 'value',
-        type: 'string',
-        description: 'The value to set for the field',
+        name: 'values',
+        type: 'object',
+        description: 'Object with field IDs as keys and field values as values',
         required: true,
       },
     ],
     handler: async (args) => {
       if (!form) {
-        throw new Error('Form not loaded')
-      }
-      const { fieldLabel, value } = args as { fieldLabel: string; value: string }
-      const field = form.fields.find((f) => f.label === fieldLabel)
-
-      if (!field) {
-        throw new Error(`Field with label "${fieldLabel}" not found`)
+        return { success: false, error: 'Form not loaded' }
       }
 
-      if (!field.id) {
-        throw new Error(`Field "${fieldLabel}" has no ID`)
+      const { values } = args as { values: Record<string, string> }
+      const validFieldIds = new Set(form.fields.map((f) => f.id).filter(Boolean))
+      const invalidIds: string[] = []
+      let setCount = 0
+
+      for (const [fieldId, value] of Object.entries(values)) {
+        if (validFieldIds.has(fieldId)) {
+          onValueChange(fieldId, value)
+          setCount++
+        } else {
+          invalidIds.push(fieldId)
+        }
       }
 
-      onValueChange(field.id, value)
-      return `Set "${fieldLabel}" to: ${value}`
-    },
-  })
-
-  // Tool: Validate field
-  useFrontendTool({
-    name: 'validateField',
-    description: 'Check if a specific field has any validation errors',
-    parameters: [
-      {
-        name: 'fieldLabel',
-        type: 'string',
-        description: 'The label of the field to validate',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      if (!form) {
-        return { error: 'Form not loaded' }
-      }
-      const { fieldLabel } = args as { fieldLabel: string }
-      const field = form.fields.find((f) => f.label === fieldLabel)
-
-      if (!field) {
-        throw new Error(`Field with label "${fieldLabel}" not found`)
+      if (invalidIds.length > 0) {
+        return {
+          success: false,
+          error: 'Invalid field IDs',
+          invalidIds,
+          validIds: Array.from(validFieldIds),
+          message: `Set ${setCount} field(s), ${invalidIds.length} invalid ID(s) ignored`,
+        }
       }
 
-      if (!field.id) {
-        return { field: fieldLabel, hasError: false, error: null }
-      }
-
-      const error = errorsRef.current[field.id]
-      return {
-        field: fieldLabel,
-        hasError: !!error,
-        error: error || null,
-      }
+      return { success: true, message: `Set ${setCount} field(s)` }
     },
   })
 
   // Tool: Submit form
   useFrontendTool({
     name: 'submitForm',
-    description: 'Submit the form with the current values',
+    description: 'Submit the form with the current values. Validates all fields before submitting.',
     parameters: [],
     handler: async () => {
       if (!form) {
-        throw new Error('Form not loaded')
+        return { success: false, error: 'Form not loaded' }
       }
+
+      // Check for validation errors
+      const currentErrors = errorsRef.current
+      if (Object.keys(currentErrors).length > 0) {
+        const errorList = Object.entries(currentErrors).map(([fieldId, error]) => {
+          const field = form.fields.find((f) => f.id === fieldId)
+          return { field: field?.label || fieldId, error }
+        })
+        return {
+          success: false,
+          error: 'Form has validation errors',
+          validationErrors: errorList,
+        }
+      }
+
       // Check for required fields that are empty
       const missingRequiredFields: string[] = []
       for (const field of form.fields) {
@@ -143,74 +129,46 @@ export function useFormFillContext(config: FormFillContextConfig) {
       }
 
       if (missingRequiredFields.length > 0) {
-        throw new Error(
-          `Cannot submit: missing required fields: ${missingRequiredFields.join(', ')}`
-        )
-      }
-
-      await onSubmit()
-      return 'Form submitted successfully'
-    },
-  })
-
-  // Tool: Get field options
-  useFrontendTool({
-    name: 'getFieldOptions',
-    description: 'Get the available options for a radio or checkbox field',
-    parameters: [
-      {
-        name: 'fieldLabel',
-        type: 'string',
-        description: 'The label of the field',
-        required: true,
-      },
-    ],
-    handler: async (args) => {
-      if (!form) {
-        return { error: 'Form not loaded' }
-      }
-      const { fieldLabel } = args as { fieldLabel: string }
-      const field = form.fields.find((f) => f.label === fieldLabel)
-
-      if (!field) {
-        throw new Error(`Field with label "${fieldLabel}" not found`)
-      }
-
-      if (field.type !== 'radio' && field.type !== 'checkbox') {
         return {
-          field: fieldLabel,
-          type: field.type,
-          options: null,
-          message: 'This field type does not have options',
+          success: false,
+          error: 'Missing required fields',
+          missingFields: missingRequiredFields,
         }
       }
 
-      return {
-        field: fieldLabel,
-        type: field.type,
-        options: field.options || [],
+      try {
+        await onSubmit()
+        return { success: true, message: 'Form submitted successfully' }
+      } catch (err) {
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'Failed to submit form',
+        }
       }
     },
   })
 
-  // Tool: Get form questions
+  // Tool: Get form information
   useFrontendTool({
-    name: 'getFormQuestions',
-    description: 'Get a list of all questions/fields in the form',
+    name: 'getFormInfo',
+    description: 'Get the form definition including title, description, and field information',
     parameters: [],
     handler: async () => {
       if (!form) {
         return { error: 'Form not loaded' }
       }
       return {
-        formTitle: form.title,
+        id: form.id,
+        title: form.title,
         fieldCount: form.fields.length,
         fields: form.fields.map((f, i) => ({
           index: i + 1,
+          id: f.id,
           label: f.label,
           type: f.type,
           required: f.required,
-          hasOptions: f.type === 'radio' || f.type === 'checkbox',
+          placeholder: f.placeholder,
+          options: f.options,
         })),
       }
     },
@@ -226,16 +184,15 @@ export function useFormFillContext(config: FormFillContextConfig) {
         return { error: 'Form not loaded' }
       }
       const currentValues = form.fields
-        .filter((f) => f.id && valuesRef.current[f.id])
+        .filter((f) => f.id)
         .map((f) => ({
-          field: f.label,
-          value: valuesRef.current[f.id!],
+          id: f.id,
+          label: f.label,
+          value: valuesRef.current[f.id!] || '',
         }))
 
       return {
         formTitle: form.title,
-        filledCount: currentValues.length,
-        totalFields: form.fields.length,
         values: currentValues,
       }
     },
