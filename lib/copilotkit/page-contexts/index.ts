@@ -14,7 +14,7 @@
  * - useGlobalNavigation: Global navigation (all pages)
  */
 
-export { useContextValues, useBaseContext } from './base-context'
+export { useContextValues, useBaseContext, navigateAndWait } from './base-context'
 export { useGlobalNavigation } from './global-navigation-context'
 export { useFormListContext, type FormListConfig } from './form-list-context'
 export { useFormEditContext, type FormEditContextConfig } from './form-edit-context'

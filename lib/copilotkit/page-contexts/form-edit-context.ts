@@ -1,8 +1,9 @@
 'use client'
 
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
+import { useRouter } from 'next/navigation'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
-import { useContextValues, useBaseContext } from './base-context'
+import { useContextValues, useBaseContext, navigateAndWait } from './base-context'
 
 export interface FormEditContextConfig {
   form?: {
@@ -32,6 +33,7 @@ export interface FormEditContextConfig {
  */
 export function useFormEditContext(config: FormEditContextConfig) {
   const { form, onUpdateForm, onSave, onPublish } = config
+  const router = useRouter()
 
   const formRef = useContextValues(form)
 
@@ -172,12 +174,20 @@ export function useFormEditContext(config: FormEditContextConfig) {
   if (onSave) {
     useFrontendTool({
       name: 'saveForm',
-      description: 'Save the current form. Returns the form id and title.',
+      description: 'Save the current form. Returns the form id and title. Waits for navigation to complete for new forms.',
       parameters: [],
       handler: async () => {
         const current = formRef.current
         if (!current) throw new Error('Cannot save: no form loaded')
         const result = await onSave()
+
+        // For new forms (no id yet), the page will navigate to edit page
+        // We need to wait for the new page tools to be ready
+        if (!current.id) {
+          return await navigateAndWait(router, `/forms/${result.id}/edit`, `Form ${result.id} (${result.title}) saved`, 20000)
+        }
+
+        // For existing forms, stay on the same page
         return `Form ${result.id} (${result.title}) saved`
       },
     })
@@ -186,13 +196,15 @@ export function useFormEditContext(config: FormEditContextConfig) {
   if (onPublish) {
     useFrontendTool({
       name: 'publishForm',
-      description: 'Publish the form to make it publicly accessible. Returns the form id and title.',
+      description: 'Publish the form to make it publicly accessible. Returns the form id and title. Waits for navigation to complete.',
       parameters: [],
       handler: async () => {
         const current = formRef.current
         if (!current) throw new Error('Cannot publish: no form loaded')
         const result = await onPublish()
-        return `Form ${result.id} (${result.title}) published`
+
+        // Wait for navigation to view page (triggered by use-form-publish hook)
+        return await navigateAndWait(router, `/forms/${result.id}/view`, `Form ${result.id} (${result.title}) published`, 20000)
       },
     })
   }

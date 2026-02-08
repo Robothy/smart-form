@@ -1,7 +1,9 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { usePageToolsReady } from '../page-tools-ready'
+import { TOOLS_READY_EVENT } from '../page-tools-ready'
 
 /**
  * Creates a ref that stays in sync with the provided value using useEffect.
@@ -26,4 +28,43 @@ export function useContextValues<T>(values: T) {
  */
 export function useBaseContext() {
   usePageToolsReady()
+}
+
+/**
+ * Navigate to a path and wait for the target page's tools to be ready.
+ * This should be used by AI tools that trigger page navigation.
+ *
+ * @param router - Next.js router instance
+ * @param path - Target path to navigate to
+ * @param actionDesc - Description of the action for the return message
+ * @param timeout - Timeout in milliseconds (default 15000)
+ * @returns Promise that resolves when tools are ready or timeout occurs
+ */
+export async function navigateAndWait(
+  router: ReturnType<typeof useRouter>,
+  path: string,
+  actionDesc: string,
+  timeout = 15000
+): Promise<string> {
+  return new Promise<string>((resolve) => {
+    router.push(path)
+
+    let resolved = false
+    const timeoutId = setTimeout(() => {
+      if (resolved) return
+      resolved = true
+      window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+      resolve(`${actionDesc} (timeout, tools may still be loading)`)
+    }, timeout)
+
+    const handleToolsReady = () => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(timeoutId)
+      window.removeEventListener(TOOLS_READY_EVENT, handleToolsReady)
+      resolve(`${actionDesc}, tools ready`)
+    }
+
+    window.addEventListener(TOOLS_READY_EVENT, handleToolsReady)
+  })
 }

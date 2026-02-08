@@ -33,7 +33,7 @@ export function useFormPublish(formId: string, form: FormData | null): UseFormPu
       const result = await response.json()
 
       if (result.success) {
-        router.push(`/forms/${formId}/view`)
+        // Navigation is handled by the caller (AI tool or page component)
         // Return the published form data
         return {
           id: result.data.id,

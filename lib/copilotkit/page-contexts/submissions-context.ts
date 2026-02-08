@@ -2,7 +2,7 @@
 
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
-import { useContextValues, useBaseContext } from './base-context'
+import { useContextValues, useBaseContext, navigateAndWait } from './base-context'
 
 export interface FieldDefinition {
   id: string
@@ -292,11 +292,10 @@ export function useSubmissionsContext(config: SubmissionsContextConfig) {
   // Tool: Navigate back to form view
   useFrontendTool({
     name: 'goToFormView',
-    description: 'Navigate back to the form view page',
+    description: 'Navigate back to the form view page. Waits for the page tools to be ready.',
     parameters: [],
     handler: async () => {
-      router.push(`/forms/${formId}/view`)
-      return `Navigating to view "${formTitle}"`
+      return await navigateAndWait(router, `/forms/${formId}/view`, `Navigating to view "${formTitle}"`)
     },
   })
 

@@ -73,6 +73,14 @@ export default function EditFormPage() {
     return await publish()
   }
 
+  // Wrapper for user button clicks - navigates after publishing
+  const handlePublishWithNavigate = async () => {
+    const result = await handlePublish()
+    // Navigate to view page after publishing
+    router.push(`/forms/${formId}/view`)
+    return result
+  }
+
   const handleCloseSnackbar = () => {
     clearSuccess()
   }
@@ -114,7 +122,7 @@ export default function EditFormPage() {
           title={editedForm.title || 'Untitled form'}
           subtitle={`Draft • ${editedForm.fields.length} field${editedForm.fields.length === 1 ? '' : 's'}`}
           onSave={() => handleSave({ title: editedForm.title, description: editedForm.description, fields: editedForm.fields })}
-          onPublish={handlePublish}
+          onPublish={handlePublishWithNavigate}
           isSaving={isSaving}
           isPublishing={isPublishing}
           hasFields={editedForm.fields.length > 0}

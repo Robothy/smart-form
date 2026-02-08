@@ -3,7 +3,7 @@
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
 import type { FormFieldData } from '@/components/forms/edit/fieldEditors'
-import { useContextValues, useBaseContext } from './base-context'
+import { useContextValues, useBaseContext, navigateAndWait } from './base-context'
 
 export interface FormViewContextConfig {
   form?: {
@@ -78,7 +78,7 @@ export function useFormViewContext(config: FormViewContextConfig) {
   // Tool: View submissions
   useFrontendTool({
     name: 'viewSubmissions',
-    description: 'Navigate to the submissions page for this form',
+    description: 'Navigate to the submissions page for this form.',
     parameters: [],
     handler: async () => {
       if (!form) {
@@ -88,15 +88,14 @@ export function useFormViewContext(config: FormViewContextConfig) {
         throw new Error('Cannot view submissions: form is not published yet')
       }
 
-      router.push(`/forms/${form.id}/submissions`)
-      return `Navigating to submissions for "${form.title}"`
+      return await navigateAndWait(router, `/forms/${form.id}/submissions`, `Navigating to submissions for "${form.title}"`)
     },
   })
 
   // Tool: Edit form (for draft forms)
   useFrontendTool({
     name: 'editForm',
-    description: 'Navigate to the edit page for this draft form',
+    description: 'Navigate to the edit page for this draft form.',
     parameters: [],
     handler: async () => {
       if (!form) {
@@ -107,12 +106,12 @@ export function useFormViewContext(config: FormViewContextConfig) {
       }
 
       if (onEdit) {
+        // Custom callback - execute it without waiting (behavior is caller-defined)
         onEdit()
-      } else {
-        router.push(`/forms/${form.id}/edit`)
+        return `Executing edit action for "${form.title}"`
       }
 
-      return `Navigating to edit "${form.title}"`
+      return await navigateAndWait(router, `/forms/${form.id}/edit`, `Navigating to edit "${form.title}"`)
     },
   })
 
@@ -176,11 +175,10 @@ export function useFormViewContext(config: FormViewContextConfig) {
   // Tool: Navigate back to forms list
   useFrontendTool({
     name: 'goToFormsList',
-    description: 'Navigate back to the forms list page',
+    description: 'Navigate back to the forms list page.',
     parameters: [],
     handler: async () => {
-      router.push('/forms')
-      return 'Navigating to forms list'
+      return await navigateAndWait(router, '/forms', 'Navigating to forms list')
     },
   })
 
