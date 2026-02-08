@@ -70,23 +70,46 @@ export async function GET(
       .where(eq(formFields.formId, form.id))
       .orderBy(formFields.order)
 
-    // Parse options from JSON strings
+    // Parse options from JSON strings with validation
     const fields = fieldsResult.map((field) => {
+      if (!field.options) {
+        return { ...field, options: undefined }
+      }
+
       try {
-        return {
-          ...field,
-          options: field.options ? JSON.parse(field.options) : undefined,
+        const parsed = JSON.parse(field.options)
+
+        // Validation: must be a non-empty array
+        if (!Array.isArray(parsed)) {
+          throw new Error(`Field ${field.id} options is not an array`)
         }
+
+        if (parsed.length === 0) {
+          throw new Error(`Field ${field.id} options array is empty`)
+        }
+
+        // Validate each option has required properties
+        for (let i = 0; i < parsed.length; i++) {
+          const opt = parsed[i]
+          if (!opt || typeof opt !== 'object') {
+            throw new Error(`Field ${field.id} option at index ${i} is not an object`)
+          }
+          if (typeof opt.label !== 'string') {
+            throw new Error(`Field ${field.id} option at index ${i} has invalid label`)
+          }
+          if (typeof opt.value !== 'string') {
+            throw new Error(`Field ${field.id} option at index ${i} has invalid value`)
+          }
+        }
+
+        return { ...field, options: parsed }
       } catch (err) {
-        console.error(`Error parsing options for field ${field.id}:`, err)
-        return {
-          ...field,
-          options: undefined,
+        if (err instanceof SyntaxError) {
+          throw new Error(`Field ${field.id} (${field.label}): Invalid JSON in options - ${err.message}`)
         }
+        throw err
       }
     })
-
-    console.log(`Successfully loaded form ${form.id} with slug ${slug}, ${fields.length} fields`)
 
     return NextResponse.json(
       successResponse({

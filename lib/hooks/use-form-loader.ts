@@ -28,9 +28,10 @@ export function useFormLoader(formId: string): UseFormLoaderResult {
       const result = await response.json()
       if (result.success) {
         // Convert fields from API format to component format
-        const fields = result.data.fields.map((field: { options: string | null } & Record<string, unknown>) => ({
+        // Options are now returned as parsed objects from the API, not strings
+        const fields = result.data.fields.map((field: { options: unknown } & Record<string, unknown>) => ({
           ...field,
-          options: field.options ? JSON.parse(field.options) : undefined,
+          options: field.options || undefined,
         }))
 
         setForm({
@@ -38,6 +39,7 @@ export function useFormLoader(formId: string): UseFormLoaderResult {
           title: result.data.title,
           description: result.data.description,
           status: result.data.status,
+          slug: result.data.slug,
           fields,
         })
       }

@@ -39,12 +39,12 @@ export function useFormSave(formId: string): UseFormSaveResult {
         setIsSuccess(false)
       }, 2000)
 
-      // Return the saved form data
+      // Return the saved form data (ensure all values are primitives)
       return {
-        id: result.data.id,
-        title: result.data.title,
-        status: result.data.status,
-        slug: result.data.slug,
+        id: String(result.data.id),
+        title: String(result.data.title),
+        status: String(result.data.status),
+        slug: result.data.slug ? String(result.data.slug) : null,
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update form')

@@ -3,7 +3,7 @@
 import { useCopilotReadable, useFrontendTool } from '@copilotkit/react-core'
 import { useRouter } from 'next/navigation'
 import type { FormFieldData, FormFieldType } from '@/components/forms/edit/fieldEditors'
-import { useContextValues, useBaseContext, navigateAndWait } from './base-context'
+import { useContextValues, useBaseContext, navigateAndWait, waitForToolsReady } from './base-context'
 
 export interface FormEditContextConfig {
   form?: {
@@ -37,27 +37,40 @@ export function useFormEditContext(config: FormEditContextConfig) {
 
   const formRef = useContextValues(form)
 
+  // Build readable value safely
+  const getReadableValue = (): string => {
+    if (!form) {
+      return JSON.stringify({ status: 'loading', message: 'No form loaded yet' })
+    }
+
+    try {
+      return JSON.stringify(
+        {
+          id: form.id || 'new form',
+          title: form.title || '',
+          description: form.description || null,
+          status: form.status || 'draft',
+          slug: form.slug || null,
+          fields: (form.fields || []).map((f) => ({
+            type: f.type,
+            label: f.label,
+            placeholder: f.placeholder || null,
+            required: Boolean(f.required),
+            options: f.options || null,
+            order: typeof f.order === 'number' ? f.order : null,
+          })),
+        },
+        null,
+        2
+      )
+    } catch (err) {
+      return JSON.stringify({ error: 'Failed to serialize form', message: err instanceof Error ? err.message : String(err) })
+    }
+  }
+
   useCopilotReadable({
     description: 'Current form state including title, description, and all fields',
-    value: JSON.stringify(
-      {
-        id: form?.id || 'new form',
-        title: form?.title || '',
-        description: form?.description,
-        status: form?.status || 'draft',
-        slug: form?.slug,
-        fields: (form?.fields || []).map((f) => ({
-          type: f.type,
-          label: f.label,
-          placeholder: f.placeholder,
-          required: f.required,
-          options: f.options,
-          order: f.order,
-        })),
-      },
-      null,
-      2
-    ),
+    value: getReadableValue(),
   })
 
   useFrontendTool({
@@ -69,13 +82,35 @@ export function useFormEditContext(config: FormEditContextConfig) {
       {
         name: 'operations',
         type: 'object[]',
-        description: 'Field operations: {action: "remove", target: "label"} or {action: "update", target: "label", changes: {...}} or {action: "add", field: {...}}',
+        description: 'Field operations: {action: "remove", target: "label"} or {action: "update", target: "label", changes: {...}} or {action: "add", field: {type, label, required, placeholder, options?, order}}. IMPORTANT: For radio/checkbox types, options must be an array of objects with {label: string, value: string} structure, NOT strings. Example: options: [{label: "Male", value: "male"}, {label: "Female", value: "female"}]',
         required: false,
         attributes: [
-          { name: 'action', type: 'string' },
-          { name: 'target', type: 'string' },
-          { name: 'changes', type: 'object' },
-          { name: 'field', type: 'object' },
+          { name: 'action', type: 'string', description: 'Operation: "add", "update", or "remove"' },
+          { name: 'target', type: 'string', description: 'Field label to target (for update/remove)', required: false },
+          { name: 'changes', type: 'object', description: 'Changes to apply (for update)', required: false },
+          {
+            name: 'field',
+            type: 'object',
+            description: 'Field to add (for add action)',
+            required: false,
+            attributes: [
+              { name: 'type', type: 'string', description: 'Field type: "text", "textarea", "date", "radio", or "checkbox"' },
+              { name: 'label', type: 'string', description: 'Field label' },
+              { name: 'placeholder', type: 'string', description: 'Placeholder text (for text/textarea/date)', required: false },
+              { name: 'required', type: 'boolean', description: 'Whether field is required', required: false },
+              {
+                name: 'options',
+                type: 'object[]',
+                description: 'REQUIRED for radio/checkbox: Array of {label: string, value: string} objects. Example: [{label: "Option 1", value: "opt1"}, {label: "Option 2", value: "opt2"}]',
+                required: false,
+                attributes: [
+                  { name: 'label', type: 'string', description: 'Display label for the option' },
+                  { name: 'value', type: 'string', description: 'Internal value for the option' },
+                ],
+              },
+              { name: 'order', type: 'number', description: 'Display order', required: false },
+            ],
+          },
         ],
       },
     ],
@@ -109,13 +144,54 @@ export function useFormEditContext(config: FormEditContextConfig) {
               case 'update': {
                 const idx = fields.findIndex((f) => f.label === op.target)
                 if (idx >= 0 && op.changes) {
+                  // Validate options format for radio/checkbox fields
+                  if (op.changes.options && (op.changes.type === 'radio' || op.changes.type === 'checkbox' || fields[idx].type === 'radio' || fields[idx].type === 'checkbox')) {
+                    if (!Array.isArray(op.changes.options)) {
+                      throw new Error(`Field "${op.target}": options must be an array`)
+                    }
+                    // Check if any option is a string (wrong format)
+                    if (op.changes.options.some((opt: any) => typeof opt === 'string')) {
+                      throw new Error(`Field "${op.target}": options must be an array of objects with {label, value} structure, not strings. Got: ${JSON.stringify(op.changes.options)}`)
+                    }
+                    // Validate each option has label and value
+                    for (let i = 0; i < op.changes.options.length; i++) {
+                      const opt = op.changes.options[i]
+                      if (!opt || typeof opt !== 'object') {
+                        throw new Error(`Field "${op.target}": option at index ${i} is not an object`)
+                      }
+                      if (typeof opt.label !== 'string' || typeof opt.value !== 'string') {
+                        throw new Error(`Field "${op.target}": option at index ${i} must have string label and value properties`)
+                      }
+                    }
+                  }
                   fields[idx] = { ...fields[idx], ...op.changes }
                 }
                 break
               }
               case 'add': {
+                const newFieldData = op.field as any
+                // Validate options format for radio/checkbox fields
+                if ((newFieldData.type === 'radio' || newFieldData.type === 'checkbox') && newFieldData.options) {
+                  if (!Array.isArray(newFieldData.options)) {
+                    throw new Error(`Field "${newFieldData.label}": options must be an array`)
+                  }
+                  // Check if any option is a string (wrong format)
+                  if (newFieldData.options.some((opt: any) => typeof opt === 'string')) {
+                    throw new Error(`Field "${newFieldData.label}": options must be an array of objects with {label, value} structure, not strings. Got: ${JSON.stringify(newFieldData.options)}`)
+                  }
+                  // Validate each option has label and value
+                  for (let i = 0; i < newFieldData.options.length; i++) {
+                    const opt = newFieldData.options[i]
+                    if (!opt || typeof opt !== 'object') {
+                      throw new Error(`Field "${newFieldData.label}": option at index ${i} is not an object`)
+                    }
+                    if (typeof opt.label !== 'string' || typeof opt.value !== 'string') {
+                      throw new Error(`Field "${newFieldData.label}": option at index ${i} must have string label and value properties`)
+                    }
+                  }
+                }
                 const newField: FormFieldData = {
-                  ...op.field,
+                  ...newFieldData,
                   id: crypto.randomUUID(),
                   order: fields.length,
                 }
@@ -174,21 +250,13 @@ export function useFormEditContext(config: FormEditContextConfig) {
   if (onSave) {
     useFrontendTool({
       name: 'saveForm',
-      description: 'Save the current form. Returns the form id and title. Waits for navigation to complete for new forms.',
+      description: 'Save the current form. Returns the form id and title. Waits for navigation to complete if this is a new form (redirects to edit page with publishForm tool available).',
       parameters: [],
       handler: async () => {
-        const current = formRef.current
-        if (!current) throw new Error('Cannot save: no form loaded')
         const result = await onSave()
-
-        // For new forms (no id yet), the page will navigate to edit page
-        // We need to wait for the new page tools to be ready
-        if (!current.id) {
-          return await navigateAndWait(router, `/forms/${result.id}/edit`, `Form ${result.id} (${result.title}) saved`, 20000)
-        }
-
-        // For existing forms, stay on the same page
-        return `Form ${result.id} (${result.title}) saved`
+        // Wait for navigation to complete - for new forms, the page redirects to edit page
+        // which has the publishForm tool. For existing forms, this just waits briefly.
+        return await waitForToolsReady(`Form ${result.id} (${result.title}) saved`, 8000)
       },
     })
   }
@@ -199,8 +267,8 @@ export function useFormEditContext(config: FormEditContextConfig) {
       description: 'Publish the form to make it publicly accessible. Returns the form id and title. Waits for navigation to complete.',
       parameters: [],
       handler: async () => {
-        const current = formRef.current
-        if (!current) throw new Error('Cannot publish: no form loaded')
+        // Call onPublish directly - the caller (edit page) has the actual form data
+        // and will validate it. The formRef may be stale due to when tools were registered.
         const result = await onPublish()
 
         // Wait for navigation to view page (triggered by use-form-publish hook)
