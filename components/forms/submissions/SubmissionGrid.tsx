@@ -28,7 +28,7 @@ export interface FieldDefinition {
 export interface Submission {
   id: string
   data: Record<string, string | string[]>
-  submittedAt: string | Date
+  submittedAt: string | Date | null
 }
 
 export interface SubmissionGridProps {

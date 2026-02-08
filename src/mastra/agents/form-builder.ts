@@ -37,7 +37,7 @@ export const formBuilderAgent = new Agent({
   instructions: 'You are a helpful form building assistant. Help users create forms by understanding their requirements.',
   model: llm(process.env.OPENAI_COMPATIBLE_MODEL_ID!),
   memory: new MockMemory({
-    enableWorkingMemory: true,
+    enableWorkingMemory: false,
     enableMessageHistory: true,
     workingMemoryTemplate: `# Form Building Context
 
