@@ -137,7 +137,7 @@ export default function SubmissionsPage() {
     fields,
     submissions: submissions.map((s) => ({
       ...s,
-      submittedAt: typeof s.submittedAt === 'string' ? s.submittedAt : s.submittedAt.toISOString(),
+      submittedAt: s.submittedAt == null ? null : (typeof s.submittedAt === 'string' ? s.submittedAt : s.submittedAt.toISOString()),
     })),
     totalCount,
     page,
